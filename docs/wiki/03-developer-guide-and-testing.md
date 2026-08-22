@@ -58,12 +58,15 @@ pnpm build
 # 4. Start services in development mode
 pnpm dev:api                     # Start API on port 3000
 pnpm dev:mcp                     # Start MCP server on port 3002
-pnpm dev:cli -- --help           # Run CLI locally
+pnpm knowiki --help              # Run CLI directly in workspace
 
-# 5. Run test suite across all 3 packages (76 tests)
+# 5. Link CLI globally across your machine (optional)
+pnpm cli:link                    # Makes 'knowiki' available in all terminals
+
+# 6. Run test suite across all 3 packages (76 tests)
 pnpm test
 
-# 6. Typecheck all packages
+# 7. Typecheck all packages
 pnpm typecheck
 ```
 

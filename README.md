@@ -82,9 +82,10 @@ Before installing Knowiki, ensure you have the following downloaded and installe
 
 5. **(Optional) Install the Knowiki CLI globally:**
    ```bash
-   # Link the CLI binary so 'knowiki' command is available anywhere
-   pnpm --filter @knowiki/cli link --global
+   # Link the CLI binary so the 'knowiki' command is available globally across all terminals
+   pnpm cli:link
    ```
+   > **Note:** If this is your first time using global pnpm packages, run `pnpm setup` once to configure your global bin directory in your `PATH`.
 
 ---
 
@@ -97,8 +98,8 @@ pnpm dev:api
 # Start Knowiki MCP Server in development mode (http://localhost:3002)
 pnpm dev:mcp
 
-# Test the Knowiki CLI locally
-pnpm dev:cli -- --help
+# Run the Knowiki CLI locally within the repository
+pnpm knowiki --help
 
 # Run all 76 automated tests across all 3 packages
 pnpm test
@@ -140,13 +141,14 @@ knowiki propose --title "feat: Add Webhook runbook"           # Opens GitHub PR 
 You can use Knowiki on **any project or workspace on your computer** without modifying your project's codebase. Here is how to test it end-to-end in 5 minutes:
 
 ### 1. Link the CLI globally
-From your `Knowiki-V1` folder, link the CLI so the `knowiki` command is available everywhere:
+From your `knowiki` root folder, run:
 ```bash
-pnpm --filter @knowiki/cli link --global
+pnpm cli:link
 ```
+*(Runs `pnpm --dir packages/cli link --global`. If you haven't used global pnpm tools before, run `pnpm setup` once).*
 
 ### 2. Keep the local API running
-Open a terminal in `Knowiki-V1` and run the API service:
+Open a terminal in `knowiki` and run the API service:
 ```bash
 pnpm dev:api
 ```

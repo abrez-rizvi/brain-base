@@ -116,8 +116,9 @@ Developers can attach Knowiki to any existing project on their machine:
 
 1. **Globally Link CLI**:
    ```bash
-   pnpm --filter @knowiki/cli link --global
+   pnpm cli:link
    ```
+   *(Or run `pnpm knowiki` directly inside the monorepo root).*
 2. **Ensure API is running**:
    ```bash
    pnpm dev:api
