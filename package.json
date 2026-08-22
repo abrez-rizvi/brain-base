@@ -4,6 +4,7 @@
   "private": true,
   "description": "Knowiki — The Shared Project Intelligence Layer",
   "scripts": {
+    "dev": "pnpm --parallel --filter @knowiki/api --filter @knowiki/mcp dev",
     "dev:api": "pnpm --filter @knowiki/api dev",
     "dev:mcp": "pnpm --filter @knowiki/mcp dev",
     "dev:cli": "pnpm --filter @knowiki/cli dev",
@@ -16,6 +17,11 @@
     "typecheck": "pnpm --recursive run typecheck",
     "clean": "pnpm --recursive run clean",
     "setup": "pnpm install && pnpm build"
+  },
+  "pnpm": {
+    "overrides": {
+      "jose": "6.2.9"
+    }
   },
   "engines": {
     "node": ">=20.0.0",

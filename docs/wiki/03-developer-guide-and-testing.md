@@ -55,18 +55,23 @@ cp .env.example .env             # Windows: copy .env.example .env
 # 3. Build all TypeScript packages
 pnpm build
 
-# 4. Start services in development mode
-pnpm dev:api                     # Start API on port 3000
-pnpm dev:mcp                     # Start MCP server on port 3002
-pnpm knowiki --help              # Run CLI directly in workspace
+# 4. Start local services (API + MCP Concurrently)
+pnpm dev                         # Hosts API on :3000 and MCP on :3002
 
-# 5. Link CLI globally across your machine (optional)
+# Or start services individually:
+# pnpm dev:api                   # Start API only
+# pnpm dev:mcp                   # Start MCP server only
+
+# 5. Run CLI directly in workspace
+pnpm knowiki --help
+
+# 6. Link CLI globally across your machine (optional)
 pnpm cli:link                    # Makes 'knowiki' available in all terminals
 
-# 6. Run test suite across all 3 packages (76 tests)
+# 7. Run test suite across all 3 packages (76 tests)
 pnpm test
 
-# 7. Typecheck all packages
+# 8. Typecheck all packages
 pnpm typecheck
 ```
 

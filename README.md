@@ -6,6 +6,37 @@ Knowiki is a portable, agent-agnostic project intelligence layer that makes repo
 
 ---
 
+## ⚡ Quick Start (Run in 60 Seconds)
+
+Clone and host both the **Knowiki API** and **Knowiki MCP Server** concurrently with a single command:
+
+```bash
+# 1. Clone & Enter
+git clone https://github.com/abrez-rizvi/knowiki.git
+cd knowiki
+
+# 2. Install Dependencies
+pnpm install
+
+# 3. Start Local Servers (API + MCP Concurrently)
+pnpm dev
+```
+
+That's it! Both servers are now live:
+* 🟢 **Knowiki API**: `http://localhost:3000` *(Health check: `http://localhost:3000/health`)*
+* 🟣 **Knowiki MCP Server**: `http://localhost:3002` *(SSE endpoint: `http://localhost:3002/sse`)*
+
+### 🎮 Using the CLI Immediately
+```bash
+# Run CLI directly inside the repo:
+pnpm knowiki --help
+
+# Or link it globally to use 'knowiki' anywhere on your PC:
+pnpm cli:link
+```
+
+---
+
 ## 🏛️ System Architecture
 
 Knowiki decouples project intelligence from individual AI agents into three modular tiers:
@@ -40,102 +71,6 @@ Comprehensive documentation is available in the [`docs/wiki/`](./docs/wiki/) dir
 
 ---
 
-## 🚀 Getting Started
-
-### 📋 Prerequisites & Downloads
-
-Before installing Knowiki, ensure you have the following downloaded and installed on your machine:
-
-| Software | Required Version | Download / Installation | Verify Command |
-| :--- | :--- | :--- | :--- |
-| **Node.js** | `>= 20.0.0` (LTS recommended) | [Download Node.js](https://nodejs.org/) | `node -v` |
-| **pnpm** | `>= 9.0.0` | `npm install -g pnpm`<br>*(or `corepack enable && corepack prepare pnpm@latest --activate`)* | `pnpm -v` |
-| **Git** | `>= 2.30.0` | [Download Git](https://git-scm.com/downloads) | `git --version` |
-| **GitHub Token** *(Optional)* | Classic / Fine-grained PAT | [Generate Token](https://github.com/settings/tokens)<br>*(increases API limit from 60 to 5,000 req/hr)* | — |
-
----
-
-### 📦 Installation & Setup
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/abrez-rizvi/knowiki.git
-   cd knowiki
-   ```
-
-2. **Install monorepo dependencies:**
-   ```bash
-   pnpm install
-   ```
-
-3. **Configure environment variables:**
-   ```bash
-   # Copy the sample environment file
-   cp .env.example .env    # On Windows: copy .env.example .env
-   ```
-   *(Optional)* Open `.env` and add your `GITHUB_TOKEN` to unlock 5,000 req/hr rate limits.
-
-4. **Build all packages:**
-   ```bash
-   pnpm build
-   ```
-
-5. **(Optional) Install the Knowiki CLI globally:**
-   ```bash
-   # Link the CLI binary so the 'knowiki' command is available globally across all terminals
-   pnpm cli:link
-   ```
-   > **Note:** If this is your first time using global pnpm packages, run `pnpm setup` once to configure your global bin directory in your `PATH`.
-
----
-
-### 🛠️ Running Services & Verification
-
-```bash
-# Start Knowiki API in development mode (http://localhost:3000)
-pnpm dev:api
-
-# Start Knowiki MCP Server in development mode (http://localhost:3002)
-pnpm dev:mcp
-
-# Run the Knowiki CLI locally within the repository
-pnpm knowiki --help
-
-# Run all 76 automated tests across all 3 packages
-pnpm test
-
-# Run TypeScript type check across all packages
-pnpm typecheck
-```
-
----
-
-## 💻 CLI Quickstart
-
-```bash
-# Connect current workspace to a Knowiki intelligence repository & bootstrap agent meta-skill
-knowiki init https://github.com/acme/project-intelligence
-
-# Inspect connection, cached volume, and uncommitted modifications
-knowiki status
-
-# Inspect knowledge documents
-knowiki knowledge list
-knowiki knowledge show architecture.md
-
-# Inspect and materialize skills for local agents
-knowiki skills list
-knowiki skills show testing
-knowiki skills install testing --target gemini # or cursor, claude
-
-# Check diffs and publish changes
-knowiki diff
-knowiki push -m "feat(skills): add database migration runbook" # Direct commit for maintainers
-knowiki propose --title "feat: Add Webhook runbook"           # Opens GitHub PR for contributors
-```
-
----
-
 ## 💡 Trying Knowiki on Any Project on Your PC
 
 You can use Knowiki on **any project or workspace on your computer** without modifying your project's codebase. Here is how to test it end-to-end in 5 minutes:
@@ -147,12 +82,12 @@ pnpm cli:link
 ```
 *(Runs `pnpm --dir packages/cli link --global`. If you haven't used global pnpm tools before, run `pnpm setup` once).*
 
-### 2. Keep the local API running
-Open a terminal in `knowiki` and run the API service:
+### 2. Keep the local servers running
+In a terminal in `knowiki`, start the servers:
 ```bash
-pnpm dev:api
+pnpm dev
 ```
-*(Runs on `http://localhost:3000`)*
+*(Hosts API on `:3000` and MCP on `:3002`)*
 
 ### 3. Navigate to any project folder
 In a separate terminal, navigate to any repository or codebase on your machine:
@@ -184,6 +119,64 @@ knowiki init https://github.com/spencerpauly/skills-repo
 
 ---
 
+## 🛠️ Advanced Development & Verification
+
+### 📋 Prerequisites & Downloads
+
+| Software | Required Version | Download / Installation | Verify Command |
+| :--- | :--- | :--- | :--- |
+| **Node.js** | `>= 20.0.0` (LTS recommended) | [Download Node.js](https://nodejs.org/) | `node -v` |
+| **pnpm** | `>= 9.0.0` | `npm install -g pnpm`<br>*(or `corepack enable && corepack prepare pnpm@latest --activate`)* | `pnpm -v` |
+| **Git** | `>= 2.30.0` | [Download Git](https://git-scm.com/downloads) | `git --version` |
+| **GitHub Token** *(Optional)* | Classic / Fine-grained PAT | [Generate Token](https://github.com/settings/tokens)<br>*(increases API limit from 60 to 5,000 req/hr)* | — |
+
+### 🧪 Workspace Commands & Tests
+
+```bash
+# Start both API and MCP servers concurrently
+pnpm dev
+
+# Start individual services in development mode
+pnpm dev:api                     # API on port 3000
+pnpm dev:mcp                     # MCP server on port 3002
+
+# Run all 76 automated tests across all 3 packages
+pnpm test
+
+# Run TypeScript type check across all packages
+pnpm typecheck
+
+# Build all packages for production
+pnpm build
+```
+
+---
+
+## 💻 CLI Quickstart
+
+```bash
+# Connect current workspace to a Knowiki intelligence repository & bootstrap agent meta-skill
+knowiki init https://github.com/acme/project-intelligence
+
+# Inspect connection, cached volume, and uncommitted modifications
+knowiki status
+
+# Inspect knowledge documents
+knowiki knowledge list
+knowiki knowledge show architecture.md
+
+# Inspect and materialize skills for local agents
+knowiki skills list
+knowiki skills show testing
+knowiki skills install testing --target gemini # or cursor, claude
+
+# Check diffs and publish changes
+knowiki diff
+knowiki push -m "feat(skills): add database migration runbook" # Direct commit for maintainers
+knowiki propose --title "feat: Add Webhook runbook"           # Opens GitHub PR for contributors
+```
+
 ## 📄 License
 MIT
+
 
