@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+*.tsbuildinfo
+
+# Environment & credentials
+.env
+.env.*
+!.env.example
+
+# Local Knowiki state & cache
+.knowiki/cache/
+.knowiki/state.yaml
+.knowiki/auth.yaml
+
+# Test coverage & logs
+coverage/
+*.log
+
+# OS & Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
