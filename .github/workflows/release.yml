@@ -70,6 +70,20 @@ jobs:
             cp ./bin/ever-brain.exe ./ever-brain.exe
           fi
 
+      - name: Compile Windows Setup Installer (EverBrainSetup.exe)
+        if: matrix.target.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          if (Get-Command iscc -ErrorAction SilentlyContinue) {
+            iscc scripts/installer.iss /O.
+          } else {
+            Write-Host "Inno Setup iscc not in path, checking default Program Files..."
+            $innoPath = "C:\Program Files (x86)\Inno Setup 6\iscc.exe"
+            if (Test-Path $innoPath) {
+              & $innoPath scripts/installer.iss /O.
+            }
+          }
+
       - name: Upload Binary Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -77,6 +91,7 @@ jobs:
           path: |
             ./${{ matrix.target.artifact_name }}
             ./ever-brain.exe
+            ./EverBrainSetup.exe
           if-no-files-found: ignore
 
   create-github-release:
@@ -102,6 +117,7 @@ jobs:
           files: |
             ./release-assets/ever-brain-windows-x64.exe
             ./release-assets/ever-brain.exe
+            ./release-assets/EverBrainSetup.exe
             ./release-assets/ever-brain-darwin-arm64
             ./release-assets/ever-brain-linux-x64
         env:
