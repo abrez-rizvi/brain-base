@@ -1,6 +1,8 @@
 ; Inno Setup Script for Ever-Brain CLI
 #define MyAppName "EverBrain"
+#ifndef MyAppVersion
 #define MyAppVersion "1.0.0"
+#endif
 #define MyAppPublisher "Ever-Brain"
 #define MyAppURL "https://github.com/abrez-rizvi/ever-brain"
 #define MyAppExeName "ever-brain.exe"

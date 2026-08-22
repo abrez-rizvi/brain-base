@@ -5,6 +5,11 @@ on:
     tags:
       - 'v*'
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release Version Tag (e.g. v1.0.0 or v1.0.1)'
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -33,6 +38,24 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Resolve Version
+        id: vars
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG="${{ inputs.tag }}"
+          else
+            TAG="${{ github.ref_name }}"
+          fi
+          # Ensure tag starts with 'v'
+          if [[ "$TAG" != v* ]]; then
+            TAG="v$TAG"
+          fi
+          VERSION="${TAG#v}"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Building Ever-Brain version $VERSION (tag: $TAG)"
 
       - name: Setup Node.js 22
         uses: actions/setup-node@v4
@@ -65,7 +88,6 @@ jobs:
         shell: bash
         run: |
           cp ./bin/${{ matrix.target.binary_name }} ./${{ matrix.target.artifact_name }}
-          # Also copy a standard ever-brain.exe for direct latest download links on Windows
           if [ "${{ matrix.target.os }}" = "windows-latest" ]; then
             cp ./bin/ever-brain.exe ./ever-brain.exe
           fi
@@ -79,7 +101,8 @@ jobs:
             choco install innosetup -y --no-progress
             $env:Path += ";C:\Program Files (x86)\Inno Setup 6"
           }
-          iscc scripts/installer.iss /O.
+          $ver = "${{ steps.vars.outputs.version }}"
+          iscc /DMyAppVersion="$ver" scripts/installer.iss /O.
 
       - name: Upload Binary Artifact
         uses: actions/upload-artifact@v4
@@ -105,9 +128,27 @@ jobs:
           path: ./release-assets
           merge-multiple: true
 
+      - name: Resolve Release Tag & Version
+        id: vars
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG="${{ inputs.tag }}"
+          else
+            TAG="${{ github.ref_name }}"
+          fi
+          if [[ "$TAG" != v* ]]; then
+            TAG="v$TAG"
+          fi
+          VERSION="${TAG#v}"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
       - name: Create Release and Upload Assets
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.vars.outputs.tag }}
+          name: Ever-Brain ${{ steps.vars.outputs.tag }}
           draft: false
           prerelease: false
           generate_release_notes: true
