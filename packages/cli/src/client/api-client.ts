@@ -11,9 +11,21 @@ export class CliApiClient {
     return `${this.baseUrl.replace(/\/+$/, '')}${endpoint}`;
   }
 
+  private async safeFetch(url: string, init?: RequestInit): Promise<Response> {
+    try {
+      return await fetch(url, init);
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : String(err);
+      throw new Error(
+        `Cannot connect to Knowiki API at ${this.baseUrl} (${errorMsg}).\n` +
+        `Is the Knowiki server running? Start it with 'pnpm dev' (or configure --api-url / KNOWIKI_API_URL).`
+      );
+    }
+  }
+
   async getRepoMetadata(owner: string, repo: string): Promise<RepoMetadata> {
     const url = this.cleanUrl(`/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`);
-    const res = await fetch(url, {
+    const res = await this.safeFetch(url, {
       headers: { 'User-Agent': 'Knowiki-CLI/1.0', Accept: 'application/json' },
     });
 
@@ -46,7 +58,7 @@ export class CliApiClient {
       `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/files${queryString}`
     );
 
-    const res = await fetch(url, {
+    const res = await this.safeFetch(url, {
       headers: { 'User-Agent': 'Knowiki-CLI/1.0', Accept: 'application/json' },
     });
 
@@ -77,7 +89,7 @@ export class CliApiClient {
       `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/file/${cleanPath}${queryString}`
     );
 
-    const res = await fetch(url, {
+    const res = await this.safeFetch(url, {
       headers: { 'User-Agent': 'Knowiki-CLI/1.0' },
     });
 
@@ -116,7 +128,7 @@ export class CliApiClient {
       `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/search?${params.toString()}`
     );
 
-    const res = await fetch(url, {
+    const res = await this.safeFetch(url, {
       headers: { 'User-Agent': 'Knowiki-CLI/1.0', Accept: 'application/json' },
     });
 

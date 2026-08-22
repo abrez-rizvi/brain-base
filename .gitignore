@@ -11,6 +11,7 @@ dist/
 !.env.example
 
 # Local Knowiki state & cache
+.knowiki/
 .knowiki/cache/
 .knowiki/state.yaml
 .knowiki/auth.yaml
