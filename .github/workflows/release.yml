@@ -34,21 +34,21 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Enable Corepack & pnpm
+        shell: bash
+        run: |
+          corepack enable
+          corepack prepare pnpm@latest --activate
+
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
-
-      - name: Setup Node & pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'pnpm'
 
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
@@ -74,15 +74,12 @@ jobs:
         if: matrix.target.os == 'windows-latest'
         shell: pwsh
         run: |
-          if (Get-Command iscc -ErrorAction SilentlyContinue) {
-            iscc scripts/installer.iss /O.
-          } else {
-            Write-Host "Inno Setup iscc not in path, checking default Program Files..."
-            $innoPath = "C:\Program Files (x86)\Inno Setup 6\iscc.exe"
-            if (Test-Path $innoPath) {
-              & $innoPath scripts/installer.iss /O.
-            }
+          if (-not (Get-Command iscc -ErrorAction SilentlyContinue)) {
+            Write-Host "Installing Inno Setup via Chocolatey..."
+            choco install innosetup -y --no-progress
+            $env:Path += ";C:\Program Files (x86)\Inno Setup 6"
           }
+          iscc scripts/installer.iss /O.
 
       - name: Upload Binary Artifact
         uses: actions/upload-artifact@v4
