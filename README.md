@@ -40,38 +40,71 @@ Comprehensive documentation is available in the [`docs/wiki/`](./docs/wiki/) dir
 
 ---
 
-## 🚀 Quickstart
+## 🚀 Getting Started
 
-### Prerequisites
-- Node.js >= 20.0.0
-- pnpm >= 9.0.0
+### 📋 Prerequisites & Downloads
 
-### Installation
+Before installing Knowiki, ensure you have the following downloaded and installed on your machine:
+
+| Software | Required Version | Download / Installation | Verify Command |
+| :--- | :--- | :--- | :--- |
+| **Node.js** | `>= 20.0.0` (LTS recommended) | [Download Node.js](https://nodejs.org/) | `node -v` |
+| **pnpm** | `>= 9.0.0` | `npm install -g pnpm`<br>*(or `corepack enable && corepack prepare pnpm@latest --activate`)* | `pnpm -v` |
+| **Git** | `>= 2.30.0` | [Download Git](https://git-scm.com/downloads) | `git --version` |
+| **GitHub Token** *(Optional)* | Classic / Fine-grained PAT | [Generate Token](https://github.com/settings/tokens)<br>*(increases API limit from 60 to 5,000 req/hr)* | — |
+
+---
+
+### 📦 Installation & Setup
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/abrez-rizvi/knowiki.git
+   cd knowiki
+   ```
+
+2. **Install monorepo dependencies:**
+   ```bash
+   pnpm install
+   ```
+
+3. **Configure environment variables:**
+   ```bash
+   # Copy the sample environment file
+   cp .env.example .env    # On Windows: copy .env.example .env
+   ```
+   *(Optional)* Open `.env` and add your `GITHUB_TOKEN` to unlock 5,000 req/hr rate limits.
+
+4. **Build all packages:**
+   ```bash
+   pnpm build
+   ```
+
+5. **(Optional) Install the Knowiki CLI globally:**
+   ```bash
+   # Link the CLI binary so 'knowiki' command is available anywhere
+   pnpm --filter @knowiki/cli link --global
+   ```
+
+---
+
+### 🛠️ Running Services & Verification
+
 ```bash
-git clone https://github.com/your-org/knowiki.git
-cd knowiki
-pnpm install
-```
-
-### Running Services
-```bash
-# Start Knowiki API in development mode (port 3000 or $PORT)
+# Start Knowiki API in development mode (http://localhost:3000)
 pnpm dev:api
 
-# Start Knowiki MCP in development mode (port 3002 or $MCP_PORT)
+# Start Knowiki MCP Server in development mode (http://localhost:3002)
 pnpm dev:mcp
 
-# Run Knowiki CLI in development mode
+# Test the Knowiki CLI locally
 pnpm dev:cli -- --help
 
-# Run automated tests across all 3 packages (76 tests)
+# Run all 76 automated tests across all 3 packages
 pnpm test
 
-# Run TypeScript type check across all 3 packages
+# Run TypeScript type check across all packages
 pnpm typecheck
-
-# Build all packages for production
-pnpm build
 ```
 
 ---

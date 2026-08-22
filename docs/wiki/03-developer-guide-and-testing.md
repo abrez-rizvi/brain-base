@@ -4,71 +4,80 @@ This guide outlines how to configure, run, test, and verify the Knowiki codebase
 
 ---
 
-## 1. Monorepo Structure
+## 1. Prerequisites & Required Downloads
+
+Before developing or running Knowiki locally, ensure the following tools are installed:
+
+| Software | Required Version | Official Download / Install | Version Check |
+| :--- | :--- | :--- | :--- |
+| **Node.js** | `>= 20.0.0` (LTS recommended) | [nodejs.org](https://nodejs.org/) | `node -v` |
+| **pnpm** | `>= 9.0.0` | `npm install -g pnpm`<br>*(or `corepack enable && corepack prepare pnpm@latest --activate`)* | `pnpm -v` |
+| **Git** | `>= 2.30.0` | [git-scm.com](https://git-scm.com/downloads) | `git --version` |
+| **GitHub Token** *(Optional)* | Classic / Fine-grained PAT | [GitHub Tokens](https://github.com/settings/tokens)<br>*(increases API limit from 60 to 5,000 req/hr)* | — |
+
+---
+
+## 2. Monorepo Structure
 
 ```text
 Knowiki-V1/
 ├── packages/
 │   ├── api/                     # Knowiki API Source Layer (@knowiki/api)
-│   │   ├── src/
-│   │   │   ├── config.ts        # Environment & runtime config
-│   │   │   ├── app.ts           # Hono app instance & route mounts
-│   │   │   ├── index.ts         # Node.js server launcher & graceful shutdown
-│   │   │   ├── routes/          # Health, Repos, Files, Search routes
-│   │   │   ├── services/        # GitHub service, Resolver, TreeCache, Search
-│   │   │   ├── types/           # Exportable contract types
-│   │   │   └── utils/           # MIME mapper, binary filter, visual logger
-│   │   ├── test/                # Vitest unit & integration test suites
-│   │   ├── package.json
-│   │   └── tsconfig.json
-│   ├── mcp/                     # Knowiki MCP Adapter (Upcoming)
-│   └── cli/                     # Knowiki CLI Plane (Upcoming)
+│   │   ├── src/                 # Hono app, Git tree resolver, cache, routes
+│   │   ├── test/                # API integration & unit tests
+│   │   └── package.json
+│   ├── mcp/                     # Knowiki MCP Adapter (@knowiki/mcp)
+│   │   ├── src/                 # Streamable HTTP (2025-03-26) & SSE (2024-11-05)
+│   │   ├── test/                # MCP protocol integration tests
+│   │   └── package.json
+│   └── cli/                     # Knowiki CLI Control Plane (@knowiki/cli)
+│       ├── src/                 # Meta-skill bootstrap, cache, diff, push/propose
+│       ├── test/                # CLI command & cache tests
+│       └── package.json
 ├── docs/
-│   └── wiki/                    # Complete Project Wiki Documentation
+│   └── wiki/                    # Complete 6-Part Project Wiki Documentation
+├── .env.example                 # Sample environment configuration template
 ├── package.json                 # Monorepo root manifest
 └── pnpm-workspace.yaml          # pnpm workspace definition
 ```
 
 ---
 
-## 2. Common Workspace Commands
-
-All operations can be run from the root repository directory:
+## 3. Setup & Workspace Commands
 
 ```bash
-# Install all dependencies across all packages
+# 1. Install dependencies across all packages
 pnpm install
 
-# Start the API in watch mode
-pnpm dev:api
+# 2. Configure environment variables
+cp .env.example .env             # Windows: copy .env.example .env
 
-# Run the test suite across all packages
+# 3. Build all TypeScript packages
+pnpm build
+
+# 4. Start services in development mode
+pnpm dev:api                     # Start API on port 3000
+pnpm dev:mcp                     # Start MCP server on port 3002
+pnpm dev:cli -- --help           # Run CLI locally
+
+# 5. Run test suite across all 3 packages (76 tests)
 pnpm test
 
-# Run TypeScript typechecks
+# 6. Typecheck all packages
 pnpm typecheck
-
-# Build all packages for production
-pnpm build
 ```
 
 ---
 
-## 3. Automated Test Suite
+## 4. Automated Test Suites
 
-Automated testing is configured using **Vitest** in [`packages/api/test/`](file:///d:/Knowiki-V1/packages/api/test/):
+Automated testing is configured using **Vitest** across all packages (76 total tests):
 
-| Test Suite | File | What is Tested |
+| Package | Test Suite Files | What is Tested |
 | :--- | :--- | :--- |
-| **MIME & Filter** | `mime-and-filter.test.ts` | Resolves extensions (`.md`, `.ts`, `.json`, `LICENSE`, `Makefile`), verifies binary/lockfile exclusions. |
-| **Tree Cache** | `tree-cache.test.ts` | In-memory keying, TTL expiration, invalidation, and case-insensitivity. |
-| **Resolver Service** | `resolver-service.test.ts` | Git tree ingestion, prefix filtering, uppercase case-insensitive resolution, cache hit/miss semantics. |
-| **API Route Integration** | `api-routes.test.ts` | `GET /health`, `GET /repos/:owner/:repo`, `GET /repos/:owner/:repo/files`, `GET /repos/:owner/:repo/file/*`, and `/search`. |
-
-To run the tests:
-```bash
-pnpm --filter @knowiki/api test
-```
+| **`@knowiki/api`** | `mime-and-filter.test.ts`<br>`tree-cache.test.ts`<br>`resolver-service.test.ts`<br>`api-routes.test.ts` | Resolves extensions, exclusions, in-memory TTL caching, Git tree ingestion, and HTTP endpoints (`/health`, `/repos`, `/files`, `/file/*`, `/search`). |
+| **`@knowiki/mcp`** | `mcp-server-factory.test.ts`<br>`repo-context.test.ts`<br>`mcp-routes.test.ts`<br>`mcp-integration-e2e.test.ts` | Streamable HTTP & SSE transport endpoints, MCP resources (`knowiki://repo/...`), and tools (`list_files`, `read_file`, `search_files`). |
+| **`@knowiki/cli`** | `project-config.test.ts`<br>`cache-and-dirty-state.test.ts`<br>`meta-skill-service.test.ts`<br>`materialize-service.test.ts`<br>`auth-service.test.ts`<br>`github-writer-service.test.ts`<br>`cli-commands.test.ts` | Pure filesystem cache (`.knowiki/`), config validation, dirty diff tracking, meta-skill generation for Antigravity/Cursor/Claude, and push/propose commands. |
 
 ---
 
