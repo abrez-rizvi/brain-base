@@ -16,23 +16,23 @@ describe('MaterializeService', () => {
     fs.rmSync(testDir, { recursive: true, force: true });
   });
 
-  it('materializes skill into Gemini environment', () => {
+  it('materializes skill into universal .agents environment by default', () => {
     cacheService.writeCachedFile(
       testDir,
       'skills/db-migrate/SKILL.md',
       '---\nname: db-migrate\n---\n# DB Migration Runbook'
     );
 
-    const result = materializeService.materialize(testDir, 'db-migrate', { target: 'gemini' });
-    expect(result.targetAgent).toBe('gemini');
+    const result = materializeService.materialize(testDir, 'db-migrate');
+    expect(result.targetAgent).toBe('agents');
     expect(result.filesCopied).toBe(1);
 
-    const destFile = path.join(testDir, '.gemini', 'skills', 'db-migrate', 'SKILL.md');
+    const destFile = path.join(testDir, '.agents', 'skills', 'db-migrate', 'SKILL.md');
     expect(fs.existsSync(destFile)).toBe(true);
     expect(fs.readFileSync(destFile, 'utf8')).toContain('DB Migration Runbook');
   });
 
-  it('materializes skill into Cursor environment as .mdc rule', () => {
+  it('materializes skill into Cursor environment as .mdc rule when requested', () => {
     cacheService.writeCachedFile(
       testDir,
       'skills/testing/SKILL.md',

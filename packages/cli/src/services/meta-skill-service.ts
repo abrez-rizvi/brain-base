@@ -2,16 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 export const META_SKILL_CONTENT = `---
-name: knowiki-operator
-description: Query, inspect, modify, and publish shared project knowledge, runbooks, and conventions using the Knowiki CLI.
-whenToUse: Use when the developer asks about project architecture, conventions, workflows, database rules, or asks to save, update, or propose runbooks and skills.
-triggers:
-  - "what is our convention for"
-  - "how do we deploy/migrate/test"
-  - "update the runbook"
-  - "save this knowledge/skill"
-  - "propose a rule change"
-  - "knowiki"
+name: knowiki
+description: Query, inspect, modify, and publish shared project knowledge, runbooks, and conventions using the Knowiki CLI. Use whenever asking about project conventions, architecture, runbooks, or saving shared knowledge.
 ---
 
 # Knowiki Agent Operator Guide
@@ -35,44 +27,40 @@ When the user asks to save, update, or create a skill or knowledge doc:
 4. Confirm the resulting commit SHA or Pull Request URL to the user.
 `;
 
-export const CURSOR_RULE_CONTENT = `---
-description: Knowiki project intelligence operator rule
-globs: .knowiki/**
----
+export const AGENTS_MD_SECTION = `
+# Project Intelligence (Knowiki)
 
-# Knowiki Project Intelligence Guide
+This repository uses **Knowiki** for shared project knowledge, conventions, and operational runbooks.
 
-Use the Knowiki CLI to read, inspect, and update shared project intelligence:
-- Query status: \`knowiki status --json\`
-- View knowledge: \`knowiki knowledge list\` / \`knowiki knowledge show <path>\`
-- View skills: \`knowiki skills list\` / \`knowiki skills show <skill-id>\`
-- Modify files in \`.knowiki/cache/\`, check \`knowiki diff\`, and publish via \`knowiki push -m "..."\` or \`knowiki propose\`.
+- **Local Knowledge Cache**: \`.knowiki/cache/\`
+- **Query CLI**: \`knowiki status --json\`, \`knowiki knowledge show <path>\`, \`knowiki skills list\`
+- **Skill Runbooks**: \`.agents/skills/\` (Activate the \`knowiki\` skill for runbook operations)
+- **Modifications**: When asked to update, save, or propose rules/skills, edit the file in \`.knowiki/cache/\`, inspect \`knowiki diff\`, and publish via \`knowiki push -m "..."\` (maintainers) or \`knowiki propose\` (PR review).
 `;
 
 export class MetaSkillService {
   bootstrapMetaSkill(workspaceRoot: string): { installedLocations: string[] } {
     const installedLocations: string[] = [];
 
-    // 1. Antigravity / Gemini: .gemini/skills/knowiki/SKILL.md
-    const geminiSkillDir = path.join(workspaceRoot, '.gemini', 'skills', 'knowiki');
-    fs.mkdirSync(geminiSkillDir, { recursive: true });
-    const geminiSkillFile = path.join(geminiSkillDir, 'SKILL.md');
-    fs.writeFileSync(geminiSkillFile, META_SKILL_CONTENT, 'utf8');
-    installedLocations.push('.gemini/skills/knowiki/SKILL.md');
+    // 1. Universal Agent Standard: .agents/skills/knowiki/SKILL.md
+    const agentsSkillDir = path.join(workspaceRoot, '.agents', 'skills', 'knowiki');
+    fs.mkdirSync(agentsSkillDir, { recursive: true });
+    const agentsSkillFile = path.join(agentsSkillDir, 'SKILL.md');
+    fs.writeFileSync(agentsSkillFile, META_SKILL_CONTENT, 'utf8');
+    installedLocations.push('.agents/skills/knowiki/SKILL.md');
 
-    // 2. Cursor: .cursor/rules/knowiki.mdc
-    const cursorDir = path.join(workspaceRoot, '.cursor', 'rules');
-    fs.mkdirSync(cursorDir, { recursive: true });
-    const cursorFile = path.join(cursorDir, 'knowiki.mdc');
-    fs.writeFileSync(cursorFile, CURSOR_RULE_CONTENT, 'utf8');
-    installedLocations.push('.cursor/rules/knowiki.mdc');
-
-    // 3. Claude: .claude/skills/knowiki/SKILL.md
-    const claudeDir = path.join(workspaceRoot, '.claude', 'skills', 'knowiki');
-    fs.mkdirSync(claudeDir, { recursive: true });
-    const claudeFile = path.join(claudeDir, 'SKILL.md');
-    fs.writeFileSync(claudeFile, META_SKILL_CONTENT, 'utf8');
-    installedLocations.push('.claude/skills/knowiki/SKILL.md');
+    // 2. Project Root Context: AGENTS.md
+    const agentsMdPath = path.join(workspaceRoot, 'AGENTS.md');
+    if (fs.existsSync(agentsMdPath)) {
+      const existing = fs.readFileSync(agentsMdPath, 'utf8');
+      if (!existing.includes('Project Intelligence (Knowiki)')) {
+        fs.appendFileSync(agentsMdPath, `\n${AGENTS_MD_SECTION.trim()}\n`, 'utf8');
+        installedLocations.push('AGENTS.md (updated)');
+      }
+    } else {
+      fs.writeFileSync(agentsMdPath, AGENTS_MD_SECTION.trim() + '\n', 'utf8');
+      installedLocations.push('AGENTS.md');
+    }
 
     return { installedLocations };
   }

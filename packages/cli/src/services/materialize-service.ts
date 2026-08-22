@@ -15,11 +15,11 @@ export class MaterializeService {
     workspaceRoot: string,
     skillId: string,
     options?: {
-      target?: 'gemini' | 'cursor' | 'claude' | 'auto';
+      target?: 'agents' | 'gemini' | 'cursor' | 'claude' | 'auto';
       global?: boolean;
     }
   ): MaterializeResult {
-    const targetAgent = options?.target && options.target !== 'auto' ? options.target : 'gemini';
+    const targetAgent = options?.target && options.target !== 'auto' ? options.target : 'agents';
     const isGlobal = !!options?.global;
 
     // Locate skill in cache
@@ -36,7 +36,11 @@ export class MaterializeService {
     let destDir = '';
     let primaryFile = '';
 
-    if (targetAgent === 'gemini') {
+    if (targetAgent === 'agents') {
+      const base = isGlobal ? path.join(os.homedir(), '.agents', 'skills') : path.join(workspaceRoot, '.agents', 'skills');
+      destDir = path.join(base, skillId);
+      primaryFile = path.join(destDir, 'SKILL.md');
+    } else if (targetAgent === 'gemini') {
       const base = isGlobal ? path.join(os.homedir(), '.gemini', 'skills') : path.join(workspaceRoot, '.gemini', 'skills');
       destDir = path.join(base, skillId);
       primaryFile = path.join(destDir, 'SKILL.md');
@@ -65,7 +69,7 @@ export class MaterializeService {
           filesCopied++;
         }
       } else {
-        // For Gemini & Claude, copy directory structure
+        // For universal .agents, Gemini & Claude, copy directory structure
         const subPath = file.startsWith(`${skillDirRel}/`)
           ? file.slice(`${skillDirRel}/`.length)
           : 'SKILL.md';

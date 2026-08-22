@@ -112,7 +112,7 @@ export async function handleSkillsShow(skillId: string, options: OutputOptions =
 }
 
 export interface SkillInstallOptions extends OutputOptions {
-  target?: 'gemini' | 'cursor' | 'claude' | 'auto';
+  target?: 'agents' | 'gemini' | 'cursor' | 'claude' | 'auto';
   global?: boolean;
   yes?: boolean;
 }
@@ -132,16 +132,17 @@ export async function handleSkillsInstall(skillId: string, options: SkillInstall
         name: 'target',
         message: `Select target agent environment for skill '${skillId}':`,
         choices: [
-          { title: 'Antigravity / Gemini (~/.gemini/skills/ or .gemini/skills/)', value: 'gemini' },
+          { title: 'Universal Agent Standard (.agents/skills/ — Recommended)', value: 'agents' },
           { title: 'Cursor (.cursor/rules/)', value: 'cursor' },
           { title: 'Claude Code (.claude/skills/)', value: 'claude' },
+          { title: 'Gemini (~/.gemini/skills/)', value: 'gemini' },
         ],
       });
       target = response.target;
     }
 
     const result = materializeService.materialize(workspaceRoot, skillId, {
-      target: target || 'gemini',
+      target: target || 'agents',
       global: options.global,
     });
 

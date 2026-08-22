@@ -15,17 +15,21 @@ describe('MetaSkillService', () => {
     fs.rmSync(testDir, { recursive: true, force: true });
   });
 
-  it('bootstraps meta-skill files across Gemini, Cursor, and Claude target paths', () => {
+  it('bootstraps universal .agents/skills/knowiki/SKILL.md and project AGENTS.md', () => {
     const result = metaSkillService.bootstrapMetaSkill(testDir);
 
-    expect(result.installedLocations).toContain('.gemini/skills/knowiki/SKILL.md');
-    expect(result.installedLocations).toContain('.cursor/rules/knowiki.mdc');
-    expect(result.installedLocations).toContain('.claude/skills/knowiki/SKILL.md');
+    expect(result.installedLocations).toContain('.agents/skills/knowiki/SKILL.md');
+    expect(result.installedLocations).toContain('AGENTS.md');
 
-    const geminiSkillPath = path.join(testDir, '.gemini', 'skills', 'knowiki', 'SKILL.md');
-    expect(fs.existsSync(geminiSkillPath)).toBe(true);
-    const content = fs.readFileSync(geminiSkillPath, 'utf8');
-    expect(content).toContain('name: knowiki-operator');
-    expect(content).toContain('knowiki status');
+    const agentsSkillPath = path.join(testDir, '.agents', 'skills', 'knowiki', 'SKILL.md');
+    expect(fs.existsSync(agentsSkillPath)).toBe(true);
+    const skillContent = fs.readFileSync(agentsSkillPath, 'utf8');
+    expect(skillContent).toContain('name: knowiki');
+    expect(skillContent).toContain('knowiki status');
+
+    const agentsMdPath = path.join(testDir, 'AGENTS.md');
+    expect(fs.existsSync(agentsMdPath)).toBe(true);
+    const mdContent = fs.readFileSync(agentsMdPath, 'utf8');
+    expect(mdContent).toContain('Project Intelligence (Knowiki)');
   });
 });
