@@ -8,10 +8,10 @@ export interface SyncCommandOptions extends OutputOptions {
 }
 
 export async function handleSync(options: SyncCommandOptions = {}): Promise<void> {
-  const workspaceRoot = projectConfigManager.findKnowikiRoot();
+  const workspaceRoot = projectConfigManager.findEvbRoot();
   if (!workspaceRoot) {
     return outputError(
-      'Not inside a Knowiki project. Run `knowiki init <repo>` first.',
+      'Not inside an Ever-Brain project. Run `evb init <repo>` first.',
       'NOT_IN_WORKSPACE',
       options
     );
@@ -21,7 +21,7 @@ export async function handleSync(options: SyncCommandOptions = {}): Promise<void
     const result = await syncService.sync(workspaceRoot, { force: options.force });
 
     outputResult(result, options, () => {
-      logger.success(`Knowiki sync complete!`);
+      logger.success(`Ever-Brain sync complete!`);
       console.log(`  • Updated:   ${result.updated} files`);
       console.log(`  • Unchanged: ${result.unchanged} files`);
       if (result.removed > 0) {

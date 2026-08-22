@@ -16,7 +16,7 @@ describe('CLI Commands & Workflows', () => {
   let originalCwd: string;
 
   beforeEach(() => {
-    testDir = fs.mkdtempSync(path.join(os.tmpdir(), 'knowiki-cmd-test-'));
+    testDir = fs.mkdtempSync(path.join(os.tmpdir(), 'evb-cmd-test-'));
     originalCwd = process.cwd();
     process.chdir(testDir);
 
@@ -56,7 +56,7 @@ describe('CLI Commands & Workflows', () => {
     vi.restoreAllMocks();
   });
 
-  it('runs knowiki status in JSON mode', async () => {
+  it('runs evb status in JSON mode', async () => {
     const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
     await handleStatus({ json: true });
 
@@ -90,7 +90,7 @@ describe('CLI Commands & Workflows', () => {
     expect(diffJson.diffs[0].type).toBe('modified');
   });
 
-  it('runs knowiki knowledge list and show', async () => {
+  it('runs evb knowledge list and show', async () => {
     const listSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
     await handleKnowledgeList({ json: true });
 
@@ -105,7 +105,7 @@ describe('CLI Commands & Workflows', () => {
     expect(showJson.content).toContain('Authentication Architecture');
   });
 
-  it('runs knowiki skills list and show', async () => {
+  it('runs evb skills list and show', async () => {
     const listSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
     await handleSkillsList({ json: true });
 
@@ -121,7 +121,7 @@ describe('CLI Commands & Workflows', () => {
     expect(showJson.content).toContain('Deploy Runbook');
   });
 
-  it('resets local modifications with knowiki reset', async () => {
+  it('resets local modifications with evb reset', async () => {
     cacheService.writeCachedFile(testDir, 'knowledge/auth.md', '# Dirty modifications');
     expect(cacheService.computeDirtyState(testDir).isDirty).toBe(true);
 

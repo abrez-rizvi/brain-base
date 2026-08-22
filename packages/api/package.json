@@ -1,7 +1,7 @@
 {
-  "name": "@knowiki/api",
+  "name": "@ever-brain/api",
   "version": "1.0.0",
-  "description": "Knowiki API — Stateless Content Access Layer",
+  "description": "Ever-Brain API — Stateless Content Access Layer",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {

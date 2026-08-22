@@ -30,7 +30,7 @@ export class MaterializeService {
     );
 
     if (skillFiles.length === 0) {
-      throw new Error(`Skill '${skillId}' not found in local cache. Run 'knowiki sync' to update.`);
+      throw new Error(`Skill '${skillId}' not found in local cache. Run 'evb sync' to update.`);
     }
 
     let destDir = '';

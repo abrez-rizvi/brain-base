@@ -9,7 +9,7 @@ describe('CacheService & Dirty State Detection', () => {
   let testDir: string;
 
   beforeEach(() => {
-    testDir = fs.mkdtempSync(path.join(os.tmpdir(), 'knowiki-cache-test-'));
+    testDir = fs.mkdtempSync(path.join(os.tmpdir(), 'evb-cache-test-'));
   });
 
   afterEach(() => {
@@ -78,5 +78,47 @@ describe('CacheService & Dirty State Detection', () => {
     expect(dirty.modified).toEqual(['knowledge/g1.md']);
     expect(dirty.deleted).toEqual(['knowledge/g2.md']);
     expect(dirty.added).toEqual(['knowledge/g3.md']);
+  });
+
+  it('correctly caches and synchronizes empty files without errors', async () => {
+    projectConfigManager.writeConfig(testDir, {
+      version: 1,
+      source: {
+        repository: 'https://github.com/acme/empty-docs',
+        branch: 'main',
+      },
+    });
+
+    const mockClient = {
+      getFiles: async () => ({
+        repository: 'acme/empty-docs',
+        branch: 'main',
+        totalFiles: 2,
+        files: [
+          { path: 'empty.md', type: 'file', sizeBytes: 0, mimeType: 'text/markdown' },
+          { path: 'non-empty.md', type: 'file', sizeBytes: 15, mimeType: 'text/markdown' },
+        ],
+      }),
+      getFileContent: async (_owner: string, _repo: string, filePath: string) => {
+        if (filePath === 'empty.md') {
+          return { content: '', exactPath: 'empty.md', branch: 'main' };
+        }
+        return { content: '# Not Empty', exactPath: 'non-empty.md', branch: 'main' };
+      },
+    };
+
+    const { syncService } = await import('../src/services/sync-service.js');
+    const result = await syncService.sync(testDir, {
+      client: mockClient as any,
+      force: true,
+    });
+
+    expect(result.total).toBe(2);
+    expect(result.updated).toBe(2);
+    expect(cacheService.readCachedFile(testDir, 'empty.md')).toBe('');
+    expect(cacheService.readCachedFile(testDir, 'non-empty.md')).toBe('# Not Empty');
+
+    const dirty = cacheService.computeDirtyState(testDir);
+    expect(dirty.isDirty).toBe(false);
   });
 });

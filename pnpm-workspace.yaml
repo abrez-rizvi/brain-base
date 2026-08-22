@@ -8,4 +8,4 @@ onlyBuiltDependencies:
   - esbuild
 
 overrides:
-  jose: 6.2.9
+  '@ever-brain/cli': link:packages/cli

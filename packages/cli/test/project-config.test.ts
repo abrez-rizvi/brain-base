@@ -8,7 +8,7 @@ describe('ProjectConfigManager', () => {
   let testDir: string;
 
   beforeEach(() => {
-    testDir = fs.mkdtempSync(path.join(os.tmpdir(), 'knowiki-cfg-test-'));
+    testDir = fs.mkdtempSync(path.join(os.tmpdir(), 'evb-cfg-test-'));
   });
 
   afterEach(() => {
@@ -53,17 +53,17 @@ describe('ProjectConfigManager', () => {
     projectConfigManager.ensureGitignore(testDir);
 
     const gitignoreContent = fs.readFileSync(path.join(testDir, '.gitignore'), 'utf8');
-    expect(gitignoreContent).toContain('.knowiki/cache/');
-    expect(gitignoreContent).toContain('.knowiki/state.yaml');
+    expect(gitignoreContent).toContain('.evb/cache/');
+    expect(gitignoreContent).toContain('.evb/state.yaml');
 
     // Run again to test idempotency
     projectConfigManager.ensureGitignore(testDir);
     const gitignoreContent2 = fs.readFileSync(path.join(testDir, '.gitignore'), 'utf8');
-    const matches = gitignoreContent2.match(/\.knowiki\/cache\//g);
+    const matches = gitignoreContent2.match(/\.evb\/cache\//g);
     expect(matches?.length).toBe(1);
   });
 
-  it('finds knowiki root across nested subdirectories', () => {
+  it('finds evb root across nested subdirectories', () => {
     projectConfigManager.writeConfig(testDir, {
       version: 1,
       source: { repository: 'https://github.com/acme/repo', branch: 'main' },
@@ -72,7 +72,7 @@ describe('ProjectConfigManager', () => {
     const nestedSubdir = path.join(testDir, 'src', 'deep', 'folder');
     fs.mkdirSync(nestedSubdir, { recursive: true });
 
-    const foundRoot = projectConfigManager.findKnowikiRoot(nestedSubdir);
+    const foundRoot = projectConfigManager.findEvbRoot(nestedSubdir);
     expect(foundRoot).toBe(testDir);
   });
 });

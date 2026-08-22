@@ -15,10 +15,10 @@ export interface PushOptions extends OutputOptions {
 }
 
 export async function handlePush(options: PushOptions = {}): Promise<void> {
-  const workspaceRoot = projectConfigManager.findKnowikiRoot();
+  const workspaceRoot = projectConfigManager.findEvbRoot();
   if (!workspaceRoot) {
     return outputError(
-      'Not inside a Knowiki project. Run `knowiki init <repo>` first.',
+      'Not inside an Ever-Brain project. Run `evb init <repo>` first.',
       'NOT_IN_WORKSPACE',
       options
     );
@@ -46,7 +46,7 @@ export async function handlePush(options: PushOptions = {}): Promise<void> {
         authService.saveGlobalToken(token);
       } else {
         return outputError(
-          'GitHub authentication required. Run `knowiki auth login` or pass --token / GITHUB_TOKEN.',
+          'GitHub authentication required. Run `evb auth login` or pass --token / GITHUB_TOKEN.',
           'AUTH_REQUIRED',
           options
         );
@@ -59,7 +59,7 @@ export async function handlePush(options: PushOptions = {}): Promise<void> {
 
     if (permission !== 'admin' && permission !== 'write') {
       return outputError(
-        `User @${userInfo.username} has '${permission}' access on ${owner}/${repo} (write permission required for direct push).\nUse 'knowiki propose' to open a Pull Request for team review.`,
+        `User @${userInfo.username} has '${permission}' access on ${owner}/${repo} (write permission required for direct push).\nUse 'evb propose' to open a Pull Request for team review.`,
         'PERMISSION_DENIED',
         options
       );
@@ -78,7 +78,7 @@ export async function handlePush(options: PushOptions = {}): Promise<void> {
         commitMessage = msgRes.msg;
       }
       if (!commitMessage) {
-        commitMessage = 'Update project intelligence via Knowiki';
+        commitMessage = 'Update project intelligence via Ever-Brain';
       }
     }
 

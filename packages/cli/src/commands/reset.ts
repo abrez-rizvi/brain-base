@@ -10,10 +10,10 @@ export interface ResetOptions extends OutputOptions {
 }
 
 export async function handleReset(options: ResetOptions = {}): Promise<void> {
-  const workspaceRoot = projectConfigManager.findKnowikiRoot();
+  const workspaceRoot = projectConfigManager.findEvbRoot();
   if (!workspaceRoot) {
     return outputError(
-      'Not inside a Knowiki project. Run `knowiki init <repo>` first.',
+      'Not inside an Ever-Brain project. Run `evb init <repo>` first.',
       'NOT_IN_WORKSPACE',
       options
     );

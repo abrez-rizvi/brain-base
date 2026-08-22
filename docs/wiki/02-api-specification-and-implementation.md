@@ -1,6 +1,6 @@
 # Wiki: 02. API Specification & Implementation
 
-The **Knowiki API** is the content-access layer built on **TypeScript + Hono (Node.js)**. It serves as a dumb, reliable source layer that resolves GitHub repositories and streams their content.
+The **Ever-Brain API** is the content-access layer built on **TypeScript + Hono (Node.js)**. It serves as a reliable source layer that resolves GitHub repositories and streams their content.
 
 ---
 
@@ -10,7 +10,7 @@ To balance fast response times with strict GitHub API rate-limit conservation, t
 
 ```text
                ┌────────────────────────────────────────────────┐
-               │                  Knowiki API                   │
+               │                 Ever-Brain API                 │
                └────────┬──────────────────────────────┬────────┘
                         │                              │
              1. Tree Discovery               2. Content Streaming
@@ -33,7 +33,7 @@ To balance fast response times with strict GitHub API rate-limit conservation, t
 
 ## 2. In-Memory Tree Cache Engine
 
-- **Implementation**: [`packages/api/src/services/tree-cache.ts`](file:///d:/Knowiki-V1/packages/api/src/services/tree-cache.ts)
+- **Implementation**: `packages/api/src/services/tree-cache.ts`
 - **TTL**: 60,000ms (60 seconds) by default (configurable via `CACHE_TTL_MS`).
 - **Key**: `${owner.toLowerCase()}/${repo.toLowerCase()}:${branch.toLowerCase()}`.
 - **Cache Invalidation**:
@@ -65,8 +65,8 @@ The API excludes non-textual files and `.git/` repository internals during disco
 
 ## 4. Substring Search Engine
 
-- **Implementation**: [`packages/api/src/services/search-service.ts`](file:///d:/Knowiki-V1/packages/api/src/services/search-service.ts)
-- **Design**: Dumb, exact substring matching across discovered text/Markdown files.
+- **Implementation**: `packages/api/src/services/search-service.ts`
+- **Design**: Exact substring matching across discovered text/Markdown files.
 - **Concurrency**: Streams candidate files concurrently in controlled batches of 10.
 - **Response**: Returns matching file paths, total match count, and 1-indexed line numbers where the query occurs.
 
@@ -121,8 +121,8 @@ Returns flat array of discovered project files.
 Streams the exact raw text or Markdown content with appropriate headers.
 - **Response Headers**:
   - `Content-Type`: MIME type (e.g. `text/markdown; charset=utf-8`, `text/plain; charset=utf-8`).
-  - `X-Knowiki-Path`: Exact cased path in the repository.
-  - `X-Knowiki-Branch`: Target branch resolved.
+  - `X-Ever-Brain-Path`: Exact cased path in the repository.
+  - `X-Ever-Brain-Branch`: Target branch resolved.
 - **Aliases**: `GET /repos/:owner/:repo/files/*path` and `GET /projects/:owner/:repo/files/*path`.
 
 ### `GET /repos/:owner/:repo/search`

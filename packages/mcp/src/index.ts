@@ -8,18 +8,18 @@ const server = serve(
     port: config.port,
   },
   (info) => {
-    console.log(`[Knowiki MCP] 🚀 Running on http://localhost:${info.port}`);
-    console.log(`[Knowiki MCP] 🔗 Connected to Knowiki API at: ${config.apiUrl}`);
-    console.log(`[Knowiki MCP] 📡 Streamable HTTP Transport: POST /mcp/:owner/:repo`);
-    console.log(`[Knowiki MCP] 📡 Legacy SSE Transport: GET /sse/:owner/:repo`);
+    console.log(`[Ever-Brain MCP] 🚀 Running on http://localhost:${info.port}`);
+    console.log(`[Ever-Brain MCP] 🔗 Connected to Ever-Brain API at: ${config.apiUrl}`);
+    console.log(`[Ever-Brain MCP] 📡 Streamable HTTP Transport: POST /mcp/:owner/:repo`);
+    console.log(`[Ever-Brain MCP] 📡 Legacy SSE Transport: GET /sse/:owner/:repo`);
   }
 );
 
 // Graceful shutdown handling
 const shutdown = () => {
-  console.log('\n[Knowiki MCP] 🛑 Shutting down server gracefully...');
+  console.log('\n[Ever-Brain MCP] 🛑 Shutting down server gracefully...');
   server.close(() => {
-    console.log('[Knowiki MCP] Server stopped.');
+    console.log('[Ever-Brain MCP] Server stopped.');
     process.exit(0);
   });
 };

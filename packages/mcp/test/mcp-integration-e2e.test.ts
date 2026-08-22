@@ -5,10 +5,11 @@ import { app as mcpApp } from '../src/app.js';
 import { config as mcpConfig } from '../src/config.js';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
+import { type CallToolResult, type TextContent } from '@modelcontextprotocol/sdk/types.js';
 import { createMcpServer } from '../src/server/mcp-server-factory.js';
 import { ApiClient } from '../src/client/api-client.js';
 
-describe('Knowiki MCP End-to-End Integration Suite', () => {
+describe('Ever-Brain MCP End-to-End Integration Suite', () => {
   const API_PORT = 3894;
   const MCP_PORT = 3895;
 
@@ -43,16 +44,16 @@ describe('Knowiki MCP End-to-End Integration Suite', () => {
 
       const json = (await res.json()) as any;
       expect(json.status).toBe('ok');
-      expect(json.service).toBe('knowiki-mcp');
+      expect(json.service).toBe('ever-brain-mcp');
       expect(json.apiUrl).toBe(`http://localhost:${API_PORT}`);
     });
 
-    it('GET / exposes Knowiki MCP capabilities and tool manifests', async () => {
+    it('GET / exposes Ever-Brain MCP capabilities and tool manifests', async () => {
       const res = await fetch(`http://localhost:${MCP_PORT}/`);
       expect(res.status).toBe(200);
 
       const json = (await res.json()) as any;
-      expect(json.name).toBe('Knowiki MCP');
+      expect(json.name).toBe('Ever-Brain MCP');
       expect(json.capabilities).toEqual(['resources', 'tools']);
       expect(json.tools).toContain('list_files');
       expect(json.tools).toContain('read_file');
@@ -91,7 +92,7 @@ describe('Knowiki MCP End-to-End Integration Suite', () => {
       mockClient = new ApiClient(`http://localhost:${API_PORT}`);
 
       mockClient.getFiles = async () => ({
-        repository: 'knowiki/sample-docs',
+        repository: 'ever-brain/sample-docs',
         branch: 'main',
         totalFiles: 3,
         files: [
@@ -120,7 +121,7 @@ describe('Knowiki MCP End-to-End Integration Suite', () => {
         }
         if (path === 'README.md') {
           return {
-            content: '# Knowiki Sample Project\nWelcome to our docs.',
+            content: '# Ever-Brain Sample Project\nWelcome to our docs.',
             mimeType: 'text/markdown',
             exactPath: 'README.md',
             branch: 'main',
@@ -141,7 +142,7 @@ describe('Knowiki MCP End-to-End Integration Suite', () => {
         ],
       });
 
-      const server = createMcpServer({ owner: 'knowiki', repo: 'sample-docs' }, mockClient);
+      const server = createMcpServer({ owner: 'ever-brain', repo: 'sample-docs' }, mockClient);
       const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
 
       mcpClient = new Client({ name: 'integration-test-agent', version: '1.0.0' }, { capabilities: {} });
@@ -151,61 +152,61 @@ describe('Knowiki MCP End-to-End Integration Suite', () => {
       ]);
     });
 
-    it('exposes resources with knowiki:// scheme', async () => {
+    it('exposes resources with ever-brain:// scheme', async () => {
       const res = await mcpClient.listResources();
       expect(res.resources).toHaveLength(3);
-      expect(res.resources[0].uri).toBe('knowiki://repo/README.md');
-      expect(res.resources[1].uri).toBe('knowiki://repo/knowledge/architecture.md');
-      expect(res.resources[2].uri).toBe('knowiki://repo/skills/deploy/SKILL.md');
+      expect(res.resources[0].uri).toBe('ever-brain://repo/README.md');
+      expect(res.resources[1].uri).toBe('ever-brain://repo/knowledge/architecture.md');
+      expect(res.resources[2].uri).toBe('ever-brain://repo/skills/deploy/SKILL.md');
     });
 
     it('reads markdown resources losslessly', async () => {
-      const res = await mcpClient.readResource({ uri: 'knowiki://repo/knowledge/architecture.md' });
+      const res = await mcpClient.readResource({ uri: 'ever-brain://repo/knowledge/architecture.md' });
       expect(res.contents).toHaveLength(1);
       expect((res.contents[0] as any).text).toContain('# Architecture Overview');
       expect(res.contents[0].mimeType).toBe('text/markdown');
     });
 
     it('executes list_files tool with filtering', async () => {
-      const res = await mcpClient.callTool({
+      const res = (await mcpClient.callTool({
         name: 'list_files',
         arguments: { filter_extension: '.md' },
-      });
+      })) as CallToolResult;
       expect(res.isError).toBeFalsy();
 
-      const parsed = JSON.parse((res.content[0] as any).text);
+      const parsed = JSON.parse((res.content[0] as TextContent).text);
       expect(parsed.totalFiles).toBe(3);
-      expect(parsed.repository).toBe('knowiki/sample-docs');
+      expect(parsed.repository).toBe('ever-brain/sample-docs');
     });
 
     it('executes read_file tool', async () => {
-      const res = await mcpClient.callTool({
+      const res = (await mcpClient.callTool({
         name: 'read_file',
         arguments: { path: 'skills/deploy/SKILL.md' },
-      });
+      })) as CallToolResult;
       expect(res.isError).toBeFalsy();
-      expect((res.content[0] as any).text).toContain('# Deploy Skill');
+      expect((res.content[0] as TextContent).text).toContain('# Deploy Skill');
     });
 
     it('executes search_files tool', async () => {
-      const res = await mcpClient.callTool({
+      const res = (await mcpClient.callTool({
         name: 'search_files',
         arguments: { query: 'MCP' },
-      });
+      })) as CallToolResult;
       expect(res.isError).toBeFalsy();
 
-      const parsed = JSON.parse((res.content[0] as any).text);
+      const parsed = JSON.parse((res.content[0] as TextContent).text);
       expect(parsed.totalMatches).toBe(1);
       expect(parsed.results[0].path).toBe('knowledge/architecture.md');
     });
 
     it('handles file not found gracefully in tool call without RPC crash', async () => {
-      const res = await mcpClient.callTool({
+      const res = (await mcpClient.callTool({
         name: 'read_file',
         arguments: { path: 'missing.md' },
-      });
+      })) as CallToolResult;
       expect(res.isError).toBe(true);
-      expect((res.content[0] as any).text).toContain("File 'missing.md' not found");
+      expect((res.content[0] as TextContent).text).toContain("File 'missing.md' not found");
     });
   });
 
@@ -219,14 +220,16 @@ describe('Knowiki MCP End-to-End Integration Suite', () => {
       expect(reader).toBeDefined();
 
       if (reader) {
-        const { value } = await reader.read();
-        const initialChunk = new TextDecoder().decode(value);
-        expect(initialChunk).toContain('event: endpoint');
-        const endpointMatch = initialChunk.match(/data: (https?:\/\/[^\r\n]+)/);
-        const endpointUrl = endpointMatch ? endpointMatch[1] : `http://localhost:${MCP_PORT}/messages?sessionId=${sessionId}`;
+        const { value: firstChunk } = await reader.read();
+        const firstText = new TextDecoder().decode(firstChunk);
+        expect(firstText).toContain('event: endpoint');
 
-        if (endpointUrl) {
-          const initRes = await fetch(endpointUrl, {
+        const messageUrlMatch = firstText.match(/data: (https?:\/\/[^\s\r\n]+)/);
+        expect(messageUrlMatch).toBeTruthy();
+
+        if (messageUrlMatch) {
+          const messageEndpoint = messageUrlMatch[1];
+          const initRes = await fetch(messageEndpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -245,7 +248,7 @@ describe('Knowiki MCP End-to-End Integration Suite', () => {
           const { value: responseChunk } = await reader.read();
           const responseText = new TextDecoder().decode(responseChunk);
           expect(responseText).toContain('"jsonrpc":"2.0"');
-          expect(responseText).toContain('knowiki-mcp');
+          expect(responseText).toContain('ever-brain-mcp');
         }
 
         await reader.cancel();
@@ -281,7 +284,7 @@ describe('Knowiki MCP End-to-End Integration Suite', () => {
       expect(sessionIdHeader).toBeTruthy();
 
       const bodyText = await res.text();
-      expect(bodyText).toContain('knowiki-mcp');
+      expect(bodyText).toContain('ever-brain-mcp');
     });
   });
 });

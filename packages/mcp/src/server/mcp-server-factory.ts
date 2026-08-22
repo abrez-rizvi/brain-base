@@ -22,7 +22,7 @@ export function createMcpServer(
 ): Server {
   const server = new Server(
     {
-      name: 'knowiki-mcp',
+      name: 'ever-brain-mcp',
       version: '1.0.0',
     },
     {
@@ -41,7 +41,7 @@ export function createMcpServer(
   // --- 0. Antigravity plugin probe: server/discover ---
   server.setRequestHandler(ServerDiscoverSchema, async () => {
     return {
-      name: 'knowiki-mcp',
+      name: 'ever-brain-mcp',
       version: '1.0.0',
       capabilities: {
         resources: {
@@ -61,7 +61,7 @@ export function createMcpServer(
       const filesRes = await client.getFiles(repoContext.owner, repoContext.repo);
       return {
         resources: filesRes.files.map((file) => ({
-          uri: `knowiki://repo/${file.path}`,
+          uri: `ever-brain://repo/${file.path}`,
           name: file.path,
           description: `${file.path} in ${repoContext.owner}/${repoContext.repo}`,
           mimeType: file.mimeType,
@@ -76,12 +76,12 @@ export function createMcpServer(
   // --- 2. Resources: read ---
   server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
     const uri = request.params.uri;
-    const prefixMatch = uri.match(/^knowiki:\/\/(?:repo\/)?(.+)$/);
+    const prefixMatch = uri.match(/^(?:ever-brain|evb):\/\/(?:repo\/)?(.+)$/);
 
     if (!prefixMatch) {
       throw new McpError(
         ErrorCode.InvalidParams,
-        `Invalid URI format '${uri}'. Expected 'knowiki://repo/{path}'`
+        `Invalid URI format '${uri}'. Expected 'ever-brain://repo/{path}' or 'evb://repo/{path}'`
       );
     }
 

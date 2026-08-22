@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { app } from '../src/app.js';
 
-describe('Knowiki MCP HTTP Routes', () => {
+describe('Ever-Brain MCP HTTP Routes', () => {
   describe('GET /health', () => {
     it('returns healthy status and version', async () => {
       const res = await app.request('/health');
@@ -9,7 +9,7 @@ describe('Knowiki MCP HTTP Routes', () => {
 
       const json = await res.json();
       expect(json.status).toBe('ok');
-      expect(json.service).toBe('knowiki-mcp');
+      expect(json.service).toBe('ever-brain-mcp');
       expect(json.version).toBe('1.0.0');
       expect(typeof json.uptimeSeconds).toBe('number');
       expect(json.timestamp).toBeDefined();
@@ -22,7 +22,7 @@ describe('Knowiki MCP HTTP Routes', () => {
       expect(res.status).toBe(200);
 
       const json = await res.json();
-      expect(json.name).toBe('Knowiki MCP');
+      expect(json.name).toBe('Ever-Brain MCP');
       expect(json.capabilities).toEqual(['resources', 'tools']);
       expect(json.tools).toContain('list_files');
       expect(json.tools).toContain('read_file');

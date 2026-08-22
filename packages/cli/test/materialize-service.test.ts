@@ -9,7 +9,7 @@ describe('MaterializeService', () => {
   let testDir: string;
 
   beforeEach(() => {
-    testDir = fs.mkdtempSync(path.join(os.tmpdir(), 'knowiki-mat-test-'));
+    testDir = fs.mkdtempSync(path.join(os.tmpdir(), 'evb-mat-test-'));
   });
 
   afterEach(() => {

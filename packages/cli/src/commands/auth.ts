@@ -27,7 +27,7 @@ export async function handleAuthLogin(options: AuthLoginOptions = {}): Promise<v
       () => {
         logger.success(`Authenticated as @${userInfo.username} via ${sourceType}`);
         logger.info(`Scopes: ${userInfo.scopes.join(', ') || 'none'}`);
-        logger.success(`Token saved securely to global profile (~/.knowiki/auth.json)`);
+        logger.success(`Token saved securely to global profile (~/.evb/auth.json)`);
       }
     );
   } catch (err: unknown) {
@@ -37,18 +37,18 @@ export async function handleAuthLogin(options: AuthLoginOptions = {}): Promise<v
 }
 
 export async function handleAuthStatus(options: OutputOptions = {}): Promise<void> {
-  const workspaceRoot = projectConfigManager.findKnowikiRoot() || undefined;
+  const workspaceRoot = projectConfigManager.findEvbRoot() || undefined;
   const token = authService.resolveToken(undefined, workspaceRoot);
 
   if (!token) {
     outputResult(
       {
         authenticated: false,
-        message: 'No GitHub token configured. Run knowiki auth login to authenticate.',
+        message: 'No GitHub token configured. Run evb auth login to authenticate.',
       },
       options,
       () => {
-        logger.warn('Not authenticated. Run knowiki auth login or set GITHUB_TOKEN.');
+        logger.warn('Not authenticated. Run evb auth login or set GITHUB_TOKEN / EVB_GITHUB_TOKEN.');
       }
     );
     return;

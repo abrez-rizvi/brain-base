@@ -10,7 +10,7 @@ export interface AppConfig {
 }
 
 export const config: AppConfig = {
-  port: parseInt(process.env.PORT || '3000', 10),
+  port: parseInt(process.env.API_PORT || process.env.PORT || '3000', 10),
   githubToken: process.env.GITHUB_TOKEN || undefined,
   cacheTtlMs: parseInt(process.env.CACHE_TTL_MS || '60000', 10),
   nodeEnv: process.env.NODE_ENV || 'development',

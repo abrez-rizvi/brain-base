@@ -8,28 +8,28 @@ describe('MetaSkillService', () => {
   let testDir: string;
 
   beforeEach(() => {
-    testDir = fs.mkdtempSync(path.join(os.tmpdir(), 'knowiki-meta-test-'));
+    testDir = fs.mkdtempSync(path.join(os.tmpdir(), 'evb-meta-test-'));
   });
 
   afterEach(() => {
     fs.rmSync(testDir, { recursive: true, force: true });
   });
 
-  it('bootstraps universal .agents/skills/knowiki/SKILL.md and project AGENTS.md', () => {
+  it('bootstraps universal .agents/skills/ever-brain/SKILL.md and project AGENTS.md', () => {
     const result = metaSkillService.bootstrapMetaSkill(testDir);
 
-    expect(result.installedLocations).toContain('.agents/skills/knowiki/SKILL.md');
+    expect(result.installedLocations).toContain('.agents/skills/ever-brain/SKILL.md');
     expect(result.installedLocations).toContain('AGENTS.md');
 
-    const agentsSkillPath = path.join(testDir, '.agents', 'skills', 'knowiki', 'SKILL.md');
+    const agentsSkillPath = path.join(testDir, '.agents', 'skills', 'ever-brain', 'SKILL.md');
     expect(fs.existsSync(agentsSkillPath)).toBe(true);
     const skillContent = fs.readFileSync(agentsSkillPath, 'utf8');
-    expect(skillContent).toContain('name: knowiki');
-    expect(skillContent).toContain('knowiki status');
+    expect(skillContent).toContain('name: ever-brain');
+    expect(skillContent).toContain('evb status');
 
     const agentsMdPath = path.join(testDir, 'AGENTS.md');
     expect(fs.existsSync(agentsMdPath)).toBe(true);
     const mdContent = fs.readFileSync(agentsMdPath, 'utf8');
-    expect(mdContent).toContain('Project Intelligence (Knowiki)');
+    expect(mdContent).toContain('Project Intelligence (Ever-Brain)');
   });
 });

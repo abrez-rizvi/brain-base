@@ -3,7 +3,7 @@ import type {
   FilesResponse,
   RepoMetadata,
   SearchResponse,
-} from '@knowiki/api/contract';
+} from '@ever-brain/api/contract';
 
 export class ApiClientError extends Error {
   constructor(
@@ -23,7 +23,7 @@ export class ApiClient {
     const url = `${this.baseUrl.replace(/\/+$/, '')}${path}`;
     const res = await fetch(url, {
       headers: {
-        'User-Agent': 'Knowiki-MCP/1.0',
+        'User-Agent': 'Ever-Brain-MCP/1.0',
         Accept: 'application/json',
       },
     });
@@ -83,7 +83,7 @@ export class ApiClient {
 
     const res = await fetch(url, {
       headers: {
-        'User-Agent': 'Knowiki-MCP/1.0',
+        'User-Agent': 'Ever-Brain-MCP/1.0',
       },
     });
 
@@ -102,8 +102,8 @@ export class ApiClient {
 
     const content = await res.text();
     const mimeType = res.headers.get('content-type') || 'text/plain';
-    const exactPath = res.headers.get('x-knowiki-path') || cleanPath;
-    const resolvedBranch = res.headers.get('x-knowiki-branch') || branch || 'main';
+    const exactPath = res.headers.get('x-ever-brain-path') || cleanPath;
+    const resolvedBranch = res.headers.get('x-ever-brain-branch') || branch || 'main';
 
     return {
       content,

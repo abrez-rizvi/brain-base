@@ -33,7 +33,7 @@ export class GitHubError extends Error {
 export class GitHubService {
   private getHeaders(): Record<string, string> {
     const headers: Record<string, string> = {
-      'User-Agent': 'Knowiki-API/1.0',
+      'User-Agent': 'Ever-Brain-API/1.0',
       Accept: 'application/vnd.github.v3+json',
     };
     if (config.githubToken) {
@@ -154,7 +154,7 @@ export class GitHubService {
     const startTime = performance.now();
 
     const headers: Record<string, string> = {
-      'User-Agent': 'Knowiki-API/1.0',
+      'User-Agent': 'Ever-Brain-API/1.0',
     };
     if (config.githubToken) {
       headers['Authorization'] = `Bearer ${config.githubToken}`;

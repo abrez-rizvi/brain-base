@@ -1,6 +1,6 @@
 # Wiki: 04. MCP Specification & Agent Adapter
 
-The **Knowiki MCP** (`packages/mcp`) is the agent consumption adapter. It translates Knowiki API capabilities into standard Model Context Protocol (MCP) primitives, allowing any MCP-compatible agent to consume project intelligence without local installation or configuration.
+The **Ever-Brain MCP** (`packages/mcp`) is the agent consumption adapter. It translates Ever-Brain API capabilities into standard Model Context Protocol (MCP) primitives, allowing any MCP-compatible agent to consume project intelligence without local installation or configuration.
 
 ---
 
@@ -25,7 +25,7 @@ The MCP server supports both modern and legacy MCP transport specifications:
                                               │
                                               ▼
                                ┌─────────────────────────────┐
-                               │         Knowiki MCP         │
+                               │       Ever-Brain MCP        │
                                │  - Resources & Tools        │
                                │  - Error Ergonomics         │
                                │  - Stateless Per-Repo Context│
@@ -33,7 +33,7 @@ The MCP server supports both modern and legacy MCP transport specifications:
                                               │ HTTP JSON
                                               ▼
                                ┌─────────────────────────────┐
-                               │         Knowiki API         │
+                               │       Ever-Brain API        │
                                └─────────────────────────────┘
 ```
 
@@ -53,7 +53,7 @@ The MCP server supports both modern and legacy MCP transport specifications:
 
 Autonomous ReAct coding agents (OpenCode, Cursor, Codex, Claude) often abort connections or fail with `-32601` method-not-found exceptions when connected to servers that declare only resources. 
 
-Knowiki MCP declares **both** resources and tools capabilities:
+Ever-Brain MCP declares **both** resources and tools capabilities:
 
 ```json
 {
@@ -63,7 +63,7 @@ Knowiki MCP declares **both** resources and tools capabilities:
     "tools": { "listChanged": false }
   },
   "serverInfo": {
-    "name": "knowiki-mcp",
+    "name": "ever-brain-mcp",
     "version": "1.0.0"
   }
 }
@@ -75,11 +75,11 @@ Knowiki MCP declares **both** resources and tools capabilities:
 
 ### A. Resources Surface
 1. **`resources/list`**:
-   - Fetches repository tree from Knowiki API.
-   - Maps files to `knowiki://repo/{filePath}` resources with name, description, and MIME type.
+   - Fetches repository tree from Ever-Brain API.
+   - Maps files to `ever-brain://repo/{filePath}` resources with name, description, and MIME type.
 2. **`resources/read`**:
-   - Parses URI `knowiki://repo/{filePath}`.
-   - Retrieves exact raw content from Knowiki API.
+   - Parses URI `ever-brain://repo/{filePath}` (also supports `evb://repo/{filePath}`).
+   - Retrieves exact raw content from Ever-Brain API.
    - Returns standard `TextResourceContents`.
 
 ### B. Tools Surface

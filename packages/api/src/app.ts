@@ -12,7 +12,7 @@ app.use(
     origin: '*',
     allowMethods: ['GET', 'HEAD', 'OPTIONS'],
     allowHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-    exposeHeaders: ['X-Knowiki-Path', 'X-Knowiki-Branch'],
+    exposeHeaders: ['X-Ever-Brain-Path', 'X-Ever-Brain-Branch'],
   })
 );
 
@@ -26,9 +26,9 @@ app.route('/projects', reposRouter);
 // Root route
 app.get('/', (c) => {
   return c.json({
-    name: 'Knowiki API',
+    name: 'Ever-Brain API',
     version: '1.0.0',
-    description: 'Knowiki Stateless Content Access Layer',
+    description: 'Ever-Brain Stateless Content Access Layer',
     endpoints: [
       'GET /health',
       'GET /repos/:owner/:repo',
@@ -52,7 +52,7 @@ app.notFound((c) => {
 
 // Global Error Handler
 app.onError((err, c) => {
-  console.error('[Knowiki API Unhandled Error]', err);
+  console.error('[Ever-Brain API Unhandled Error]', err);
   return c.json(
     {
       error: err.message || 'Internal server error',

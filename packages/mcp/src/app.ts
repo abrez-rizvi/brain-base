@@ -35,7 +35,7 @@ const startTime = Date.now();
 app.get('/health', (c) => {
   return c.json({
     status: 'ok',
-    service: 'knowiki-mcp',
+    service: 'ever-brain-mcp',
     version: '1.0.0',
     apiUrl: config.apiUrl,
     uptimeSeconds: Math.round((Date.now() - startTime) / 1000),
@@ -58,7 +58,7 @@ app.all('/mcp', handleStreamableHttp);
 app.all('/server/discover', (c) => {
   return c.json({
     status: 'ok',
-    name: 'knowiki-mcp',
+    name: 'ever-brain-mcp',
     version: '1.0.0',
     capabilities: ['resources', 'tools'],
     tools: ['list_files', 'read_file', 'search_files'],
@@ -67,7 +67,7 @@ app.all('/server/discover', (c) => {
 });
 app.all('/.well-known/mcp', (c) => {
   return c.json({
-    name: 'knowiki-mcp',
+    name: 'ever-brain-mcp',
     version: '1.0.0',
     capabilities: ['resources', 'tools'],
   });
@@ -76,9 +76,9 @@ app.all('/.well-known/mcp', (c) => {
 // Root route
 app.get('/', (c) => {
   return c.json({
-    name: 'Knowiki MCP',
+    name: 'Ever-Brain MCP',
     version: '1.0.0',
-    description: 'Knowiki Agent Consumption Adapter',
+    description: 'Ever-Brain Agent Consumption Adapter',
     transports: {
       streamableHttp: 'POST /mcp/:owner/:repo or POST /mcp?repo=:url',
       sse: 'GET /sse/:owner/:repo or GET /sse?repo=:url',
@@ -102,7 +102,7 @@ app.notFound((c) => {
 
 // Error Handler
 app.onError((err, c) => {
-  console.error('[Knowiki MCP Error]', err);
+  console.error('[Ever-Brain MCP Error]', err);
   return c.json(
     {
       error: err.message || 'Internal MCP error',

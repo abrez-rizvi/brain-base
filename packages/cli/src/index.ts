@@ -11,28 +11,29 @@ import { handlePropose } from './commands/propose.js';
 import { handleAuthLogin, handleAuthStatus, handleAuthLogout } from './commands/auth.js';
 import { handleKnowledgeList, handleKnowledgeShow } from './commands/knowledge.js';
 import { handleSkillsList, handleSkillsShow, handleSkillsInstall } from './commands/skills.js';
+import { handleMcp } from './commands/mcp.js';
 
 const program = new Command();
 
 program
-  .name('knowiki')
-  .description('Knowiki CLI — Developer Control & Contribution Plane for Shared Project Intelligence')
+  .name('evb')
+  .description('Ever-Brain CLI — Developer Control & Contribution Plane for Shared Project Intelligence')
   .version('1.0.0');
 
-// --- knowiki init ---
+// --- evb init ---
 program
   .command('init [repoUrl]')
-  .description('Connect workspace to a Knowiki source repository and bootstrap agent meta-skill')
+  .description('Connect workspace to an Ever-Brain source repository and bootstrap agent meta-skill')
   .option('-b, --branch <branch>', 'Target repository branch')
   .option('-y, --yes', 'Non-interactive mode with default choices')
   .option('--no-agent-skill', 'Skip auto-installing the agent meta-skill')
-  .option('--api-url <url>', 'Knowiki API endpoint override')
+  .option('--api-url <url>', 'Ever-Brain API endpoint override')
   .option('--json', 'Output result in structured JSON format')
   .action(async (repoUrl, options) => {
     await handleInit(repoUrl, options);
   });
 
-// --- knowiki sync ---
+// --- evb sync ---
 program
   .command('sync')
   .description('Synchronize remote intelligence into local cache')
@@ -42,16 +43,16 @@ program
     await handleSync(options);
   });
 
-// --- knowiki status ---
+// --- evb status ---
 program
   .command('status')
-  .description('Show current Knowiki workspace connection, cache volume, and uncommitted modifications')
+  .description('Show current Ever-Brain workspace connection, cache volume, and uncommitted modifications')
   .option('--json', 'Output status in structured JSON format')
   .action(async (options) => {
     await handleStatus(options);
   });
 
-// --- knowiki diff ---
+// --- evb diff ---
 program
   .command('diff [path]')
   .description('Show unified diff of local uncommitted modifications against remote baseline')
@@ -60,7 +61,7 @@ program
     await handleDiff(path, options);
   });
 
-// --- knowiki reset ---
+// --- evb reset ---
 program
   .command('reset')
   .description('Discard all uncommitted local modifications and reset to remote baseline')
@@ -70,7 +71,7 @@ program
     await handleReset(options);
   });
 
-// --- knowiki push ---
+// --- evb push ---
 program
   .command('push')
   .description('Directly commit local modifications to remote repository (collaborators with write permission)')
@@ -83,7 +84,7 @@ program
     await handlePush(options);
   });
 
-// --- knowiki propose ---
+// --- evb propose ---
 program
   .command('propose')
   .description('Create a proposal branch and open a GitHub Pull Request for team review')
@@ -97,7 +98,7 @@ program
     await handlePropose(options);
   });
 
-// --- knowiki auth ---
+// --- evb auth ---
 const authCmd = program.command('auth').description('Manage GitHub authentication and tokens');
 
 authCmd
@@ -126,7 +127,7 @@ authCmd
     await handleAuthLogout(options);
   });
 
-// --- knowiki knowledge ---
+// --- evb knowledge ---
 const knowledgeCmd = program.command('knowledge').description('Inspect and browse project knowledge documents');
 
 knowledgeCmd
@@ -145,7 +146,7 @@ knowledgeCmd
     await handleKnowledgeShow(path, options);
   });
 
-// --- knowiki skills ---
+// --- evb skills ---
 const skillsCmd = program.command('skills').description('Manage and materialize project skills & runbooks');
 
 skillsCmd
@@ -173,6 +174,16 @@ skillsCmd
   .option('--json', 'Output result in structured JSON format')
   .action(async (skillId, options) => {
     await handleSkillsInstall(skillId, options);
+  });
+
+// --- evb mcp ---
+program
+  .command('mcp [repoUrl]')
+  .description('Display live Streamable HTTP & SSE MCP server endpoints and ready-to-paste agent configurations')
+  .option('--mcp-url <url>', 'Base MCP server endpoint override')
+  .option('--json', 'Output result in structured JSON format')
+  .action(async (repoUrl, options) => {
+    await handleMcp(repoUrl, options);
   });
 
 program.parse(process.argv);

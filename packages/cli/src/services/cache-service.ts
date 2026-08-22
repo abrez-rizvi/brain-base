@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import { isBinaryOrIgnoredFile } from '@knowiki/api/utils/binary-filter.js';
+import { isBinaryOrIgnoredFile } from '@ever-brain/api/utils/binary-filter.js';
 import { projectConfigManager } from '../config/project-config.js';
 
 export interface LocalModifications {

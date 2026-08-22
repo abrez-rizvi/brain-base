@@ -2,25 +2,25 @@ import fs from 'node:fs';
 import path from 'node:path';
 import YAML from 'yaml';
 import {
-  KNOWIKI_DIR,
+  EVB_DIR,
   CONFIG_FILE,
   STATE_FILE,
   CACHE_DIR,
   getDefaultApiUrl,
 } from './constants.js';
 
-export interface KnowikiSourceConfig {
+export interface EverBrainSourceConfig {
   repository: string;
   branch: string;
   api_url?: string;
 }
 
-export interface KnowikiProjectConfig {
+export interface EverBrainProjectConfig {
   version: number;
-  source: KnowikiSourceConfig;
+  source: EverBrainSourceConfig;
 }
 
-export interface KnowikiState {
+export interface EverBrainState {
   last_sync: string;
   source_revision: string;
   cached_files: number;
@@ -28,11 +28,11 @@ export interface KnowikiState {
 }
 
 export class ProjectConfigManager {
-  findKnowikiRoot(startDir = process.cwd()): string | null {
+  findEvbRoot(startDir = process.cwd()): string | null {
     let currentDir = path.resolve(startDir);
     while (true) {
-      const knowikiPath = path.join(currentDir, KNOWIKI_DIR);
-      const configPath = path.join(knowikiPath, CONFIG_FILE);
+      const evbPath = path.join(currentDir, EVB_DIR);
+      const configPath = path.join(evbPath, CONFIG_FILE);
       if (fs.existsSync(configPath)) {
         return currentDir;
       }
@@ -46,42 +46,42 @@ export class ProjectConfigManager {
     return null;
   }
 
-  getKnowikiDirPath(workspaceRoot: string): string {
-    return path.join(workspaceRoot, KNOWIKI_DIR);
+  getEvbDirPath(workspaceRoot: string): string {
+    return path.join(workspaceRoot, EVB_DIR);
   }
 
   getConfigFilePath(workspaceRoot: string): string {
-    return path.join(workspaceRoot, KNOWIKI_DIR, CONFIG_FILE);
+    return path.join(workspaceRoot, EVB_DIR, CONFIG_FILE);
   }
 
   getStateFilePath(workspaceRoot: string): string {
-    return path.join(workspaceRoot, KNOWIKI_DIR, STATE_FILE);
+    return path.join(workspaceRoot, EVB_DIR, STATE_FILE);
   }
 
   getCacheDirPath(workspaceRoot: string): string {
-    return path.join(workspaceRoot, KNOWIKI_DIR, CACHE_DIR);
+    return path.join(workspaceRoot, EVB_DIR, CACHE_DIR);
   }
 
-  readConfig(workspaceRoot: string): KnowikiProjectConfig {
+  readConfig(workspaceRoot: string): EverBrainProjectConfig {
     const configPath = this.getConfigFilePath(workspaceRoot);
     if (!fs.existsSync(configPath)) {
       throw new Error(
-        `Knowiki configuration not found at '${configPath}'. Run 'knowiki init' first.`
+        `Ever-Brain configuration not found at '${configPath}'. Run 'evb init' first.`
       );
     }
 
     const content = fs.readFileSync(configPath, 'utf8');
-    const parsed = YAML.parse(content) as KnowikiProjectConfig;
+    const parsed = YAML.parse(content) as EverBrainProjectConfig;
     if (!parsed || !parsed.source || !parsed.source.repository) {
-      throw new Error(`Invalid Knowiki configuration in '${configPath}'.`);
+      throw new Error(`Invalid Ever-Brain configuration in '${configPath}'.`);
     }
     return parsed;
   }
 
-  writeConfig(workspaceRoot: string, config: KnowikiProjectConfig): void {
-    const knowikiDir = this.getKnowikiDirPath(workspaceRoot);
-    if (!fs.existsSync(knowikiDir)) {
-      fs.mkdirSync(knowikiDir, { recursive: true });
+  writeConfig(workspaceRoot: string, config: EverBrainProjectConfig): void {
+    const evbDir = this.getEvbDirPath(workspaceRoot);
+    if (!fs.existsSync(evbDir)) {
+      fs.mkdirSync(evbDir, { recursive: true });
     }
 
     const configPath = this.getConfigFilePath(workspaceRoot);
@@ -89,7 +89,7 @@ export class ProjectConfigManager {
     fs.writeFileSync(configPath, yamlStr, 'utf8');
   }
 
-  readState(workspaceRoot: string): KnowikiState | null {
+  readState(workspaceRoot: string): EverBrainState | null {
     const statePath = this.getStateFilePath(workspaceRoot);
     if (!fs.existsSync(statePath)) {
       return null;
@@ -97,16 +97,16 @@ export class ProjectConfigManager {
 
     try {
       const content = fs.readFileSync(statePath, 'utf8');
-      return YAML.parse(content) as KnowikiState;
+      return YAML.parse(content) as EverBrainState;
     } catch {
       return null;
     }
   }
 
-  writeState(workspaceRoot: string, state: KnowikiState): void {
-    const knowikiDir = this.getKnowikiDirPath(workspaceRoot);
-    if (!fs.existsSync(knowikiDir)) {
-      fs.mkdirSync(knowikiDir, { recursive: true });
+  writeState(workspaceRoot: string, state: EverBrainState): void {
+    const evbDir = this.getEvbDirPath(workspaceRoot);
+    if (!fs.existsSync(evbDir)) {
+      fs.mkdirSync(evbDir, { recursive: true });
     }
 
     const statePath = this.getStateFilePath(workspaceRoot);
@@ -117,9 +117,9 @@ export class ProjectConfigManager {
   ensureGitignore(workspaceRoot: string): void {
     const gitignorePath = path.join(workspaceRoot, '.gitignore');
     const entriesToAdd = [
-      `${KNOWIKI_DIR}/${CACHE_DIR}/`,
-      `${KNOWIKI_DIR}/${STATE_FILE}`,
-      `${KNOWIKI_DIR}/auth.yaml`,
+      `${EVB_DIR}/${CACHE_DIR}/`,
+      `${EVB_DIR}/${STATE_FILE}`,
+      `${EVB_DIR}/auth.yaml`,
     ];
 
     let content = '';
@@ -132,7 +132,7 @@ export class ProjectConfigManager {
 
     if (missing.length > 0) {
       const toAppend = (content.endsWith('\n') || content === '' ? '' : '\n') +
-        `\n# Knowiki local cache & state\n` +
+        `\n# Ever-Brain local cache & state\n` +
         missing.join('\n') +
         '\n';
       fs.appendFileSync(gitignorePath, toAppend, 'utf8');
@@ -140,8 +140,8 @@ export class ProjectConfigManager {
   }
 
   getApiUrl(workspaceRoot?: string): string {
-    if (process.env.KNOWIKI_API_URL) {
-      return process.env.KNOWIKI_API_URL;
+    if (process.env.EVB_API_URL || process.env.EVER_BRAIN_API_URL) {
+      return process.env.EVB_API_URL || process.env.EVER_BRAIN_API_URL!;
     }
     if (workspaceRoot) {
       try {

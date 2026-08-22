@@ -6,10 +6,10 @@ import { parseRepoUrl } from '../services/sync-service.js';
 import { outputResult, outputError, OutputOptions } from '../utils/output.js';
 
 export async function handleStatus(options: OutputOptions = {}): Promise<void> {
-  const workspaceRoot = projectConfigManager.findKnowikiRoot();
+  const workspaceRoot = projectConfigManager.findEvbRoot();
   if (!workspaceRoot) {
     return outputError(
-      'Not inside a Knowiki project. Run `knowiki init <repo>` first.',
+      'Not inside an Ever-Brain project. Run `evb init <repo>` first.',
       'NOT_IN_WORKSPACE',
       options
     );
@@ -59,7 +59,7 @@ export async function handleStatus(options: OutputOptions = {}): Promise<void> {
     };
 
     outputResult(data, options, () => {
-      console.log(pc.bold(pc.cyan('Knowiki Workspace Status')));
+      console.log(pc.bold(pc.cyan('Ever-Brain Workspace Status')));
       console.log(`  Source:       ${pc.white(config.source.repository)} (branch: ${pc.green(config.source.branch)})`);
       console.log(`  API Target:   ${pc.dim(projectConfigManager.getApiUrl(workspaceRoot))}`);
       console.log(`  Last Sync:    ${state?.last_sync ? pc.white(state.last_sync) : pc.yellow('never')}`);

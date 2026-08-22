@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
 import prompts from 'prompts';
-import { GLOBAL_KNOWIKI_DIR, GLOBAL_AUTH_FILE, AUTH_FILE, KNOWIKI_DIR } from '../config/constants.js';
+import { GLOBAL_EVB_DIR, GLOBAL_AUTH_FILE, AUTH_FILE, EVB_DIR } from '../config/constants.js';
 
 export interface AuthProfile {
   username?: string;
@@ -25,9 +25,9 @@ export class AuthService {
   }
 
   getStoredToken(workspaceRoot?: string): string | null {
-    // 1. Check workspace-local .knowiki/auth.yaml
+    // 1. Check workspace-local .evb/auth.yaml
     if (workspaceRoot) {
-      const localAuthPath = path.join(workspaceRoot, KNOWIKI_DIR, AUTH_FILE);
+      const localAuthPath = path.join(workspaceRoot, EVB_DIR, AUTH_FILE);
       if (fs.existsSync(localAuthPath)) {
         try {
           const content = fs.readFileSync(localAuthPath, 'utf8');
@@ -37,7 +37,7 @@ export class AuthService {
       }
     }
 
-    // 2. Check global ~/.knowiki/auth.json
+    // 2. Check global ~/.evb/auth.json
     if (fs.existsSync(GLOBAL_AUTH_FILE)) {
       try {
         const json = JSON.parse(fs.readFileSync(GLOBAL_AUTH_FILE, 'utf8')) as AuthProfile;
@@ -53,6 +53,14 @@ export class AuthService {
       return explicitToken.trim();
     }
 
+    if (process.env.EVB_GITHUB_TOKEN && process.env.EVB_GITHUB_TOKEN.trim()) {
+      return process.env.EVB_GITHUB_TOKEN.trim();
+    }
+
+    if (process.env.EVER_BRAIN_GITHUB_TOKEN && process.env.EVER_BRAIN_GITHUB_TOKEN.trim()) {
+      return process.env.EVER_BRAIN_GITHUB_TOKEN.trim();
+    }
+
     if (process.env.GITHUB_TOKEN && process.env.GITHUB_TOKEN.trim()) {
       return process.env.GITHUB_TOKEN.trim();
     }
@@ -61,8 +69,8 @@ export class AuthService {
   }
 
   saveGlobalToken(token: string, username?: string, sourceType: 'pat' | 'gh_cli' = 'pat'): void {
-    if (!fs.existsSync(GLOBAL_KNOWIKI_DIR)) {
-      fs.mkdirSync(GLOBAL_KNOWIKI_DIR, { recursive: true });
+    if (!fs.existsSync(GLOBAL_EVB_DIR)) {
+      fs.mkdirSync(GLOBAL_EVB_DIR, { recursive: true });
     }
 
     const profile: AuthProfile = {
@@ -130,7 +138,7 @@ export class AuthService {
   async validateToken(token: string): Promise<{ username: string; scopes: string[] }> {
     const res = await fetch('https://api.github.com/user', {
       headers: {
-        'User-Agent': 'Knowiki-CLI/1.0',
+        'User-Agent': 'Ever-Brain-CLI/1.0',
         Accept: 'application/vnd.github.v3+json',
         Authorization: `Bearer ${token}`,
       },
@@ -160,7 +168,7 @@ export class AuthService {
 
     const res = await fetch(url, {
       headers: {
-        'User-Agent': 'Knowiki-CLI/1.0',
+        'User-Agent': 'Ever-Brain-CLI/1.0',
         Accept: 'application/vnd.github.v3+json',
         Authorization: `Bearer ${token}`,
       },

@@ -1,11 +1,12 @@
 {
-  "name": "@knowiki/cli",
+  "name": "@ever-brain/cli",
   "version": "1.0.0",
-  "description": "Knowiki CLI — Developer Control and Contribution Plane",
+  "description": "Ever-Brain CLI — Developer Control and Contribution Plane",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "knowiki": "./dist/index.js"
+    "evb": "./dist/index.js",
+    "ever-brain": "./dist/index.js"
   },
   "scripts": {
     "dev": "tsx src/index.ts",
@@ -16,7 +17,7 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@knowiki/api": "workspace:*",
+    "@ever-brain/api": "workspace:*",
     "commander": "^13.1.0",
     "diff": "^7.0.0",
     "dotenv": "^16.4.7",

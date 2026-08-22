@@ -47,7 +47,7 @@ export class SyncService {
       throw new Error(
         `You have uncommitted local modifications in:\n` +
           allDirty.map((f) => `  • ${f}`).join('\n') +
-          `\n\nSync halted to prevent accidental overwrite. Use 'knowiki push' / 'knowiki propose' to publish, or 'knowiki sync --force' to overwrite.`
+          `\n\nSync halted to prevent accidental overwrite. Use 'evb push' / 'evb propose' to publish, or 'evb sync --force' to overwrite.`
       );
     }
 

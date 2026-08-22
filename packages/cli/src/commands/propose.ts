@@ -16,10 +16,10 @@ export interface ProposeOptions extends OutputOptions {
 }
 
 export async function handlePropose(options: ProposeOptions = {}): Promise<void> {
-  const workspaceRoot = projectConfigManager.findKnowikiRoot();
+  const workspaceRoot = projectConfigManager.findEvbRoot();
   if (!workspaceRoot) {
     return outputError(
-      'Not inside a Knowiki project. Run `knowiki init <repo>` first.',
+      'Not inside an Ever-Brain project. Run `evb init <repo>` first.',
       'NOT_IN_WORKSPACE',
       options
     );
@@ -47,7 +47,7 @@ export async function handlePropose(options: ProposeOptions = {}): Promise<void>
         authService.saveGlobalToken(token);
       } else {
         return outputError(
-          'GitHub authentication required to open Pull Requests. Run `knowiki auth login` or pass --token.',
+          'GitHub authentication required to open Pull Requests. Run `evb auth login` or pass --token.',
           'AUTH_REQUIRED',
           options
         );
@@ -79,7 +79,7 @@ export async function handlePropose(options: ProposeOptions = {}): Promise<void>
     }
 
     if (!title) {
-      title = 'Update Knowiki Project Intelligence';
+      title = 'Update Ever-Brain Project Intelligence';
     }
     if (!message) {
       message = title;

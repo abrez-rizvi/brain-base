@@ -155,7 +155,7 @@ export async function handleSseMessage(c: Context): Promise<Response> {
       jsonrpc: '2.0',
       id: body.id ?? 1,
       result: {
-        name: 'knowiki-mcp',
+        name: 'ever-brain-mcp',
         version: '1.0.0',
         capabilities: {
           resources: { subscribe: false, listChanged: false },
@@ -180,7 +180,7 @@ export async function handleSseMessage(c: Context): Promise<Response> {
           tools: { listChanged: false },
         },
         serverInfo: {
-          name: 'knowiki-mcp',
+          name: 'ever-brain-mcp',
           version: '1.0.0',
         },
       },

@@ -32,9 +32,9 @@ export function parseSkillFrontmatter(content: string, defaultId: string): { nam
 }
 
 export async function handleSkillsList(options: OutputOptions = {}): Promise<void> {
-  const workspaceRoot = projectConfigManager.findKnowikiRoot();
+  const workspaceRoot = projectConfigManager.findEvbRoot();
   if (!workspaceRoot) {
-    return outputError('Not inside a Knowiki project. Run `knowiki init <repo>` first.', 'NOT_IN_WORKSPACE', options);
+    return outputError('Not inside an Ever-Brain project. Run `evb init <repo>` first.', 'NOT_IN_WORKSPACE', options);
   }
 
   try {
@@ -70,7 +70,7 @@ export async function handleSkillsList(options: OutputOptions = {}): Promise<voi
 
     outputResult({ skills: skillsList, total: skillsList.length }, options, () => {
       if (skillsList.length === 0) {
-        console.log(pc.yellow('No skills found in cache. Run `knowiki sync` to update.'));
+        console.log(pc.yellow('No skills found in cache. Run `evb sync` to update.'));
         return;
       }
 
@@ -78,7 +78,7 @@ export async function handleSkillsList(options: OutputOptions = {}): Promise<voi
       for (const s of skillsList) {
         console.log(`  • ${pc.bold(pc.white(s.id))} — ${pc.dim(s.description)}`);
       }
-      console.log(pc.dim(`\nTip: Use 'knowiki skills show <id>' or 'knowiki skills install <id>' to materialize.`));
+      console.log(pc.dim(`\nTip: Use 'evb skills show <id>' or 'evb skills install <id>' to materialize.`));
     });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
@@ -87,9 +87,9 @@ export async function handleSkillsList(options: OutputOptions = {}): Promise<voi
 }
 
 export async function handleSkillsShow(skillId: string, options: OutputOptions = {}): Promise<void> {
-  const workspaceRoot = projectConfigManager.findKnowikiRoot();
+  const workspaceRoot = projectConfigManager.findEvbRoot();
   if (!workspaceRoot) {
-    return outputError('Not inside a Knowiki project. Run `knowiki init <repo>` first.', 'NOT_IN_WORKSPACE', options);
+    return outputError('Not inside an Ever-Brain project. Run `evb init <repo>` first.', 'NOT_IN_WORKSPACE', options);
   }
 
   try {
@@ -99,7 +99,7 @@ export async function handleSkillsShow(skillId: string, options: OutputOptions =
     }
 
     if (content === null) {
-      return outputError(`Skill '${skillId}' not found in cache. Run 'knowiki sync' to update.`, 'SKILL_NOT_FOUND', options);
+      return outputError(`Skill '${skillId}' not found in cache. Run 'evb sync' to update.`, 'SKILL_NOT_FOUND', options);
     }
 
     outputResult({ skillId, content }, options, () => {
@@ -118,9 +118,9 @@ export interface SkillInstallOptions extends OutputOptions {
 }
 
 export async function handleSkillsInstall(skillId: string, options: SkillInstallOptions = {}): Promise<void> {
-  const workspaceRoot = projectConfigManager.findKnowikiRoot();
+  const workspaceRoot = projectConfigManager.findEvbRoot();
   if (!workspaceRoot) {
-    return outputError('Not inside a Knowiki project. Run `knowiki init <repo>` first.', 'NOT_IN_WORKSPACE', options);
+    return outputError('Not inside an Ever-Brain project. Run `evb init <repo>` first.', 'NOT_IN_WORKSPACE', options);
   }
 
   try {

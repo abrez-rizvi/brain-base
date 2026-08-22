@@ -20,7 +20,7 @@ export interface ProposalResult {
 export class GitHubWriterService {
   private getHeaders(token: string): Record<string, string> {
     return {
-      'User-Agent': 'Knowiki-CLI/1.0',
+      'User-Agent': 'Ever-Brain-CLI/1.0',
       Accept: 'application/vnd.github.v3+json',
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
@@ -155,7 +155,7 @@ export class GitHubWriterService {
 
     // Create unique proposal branch name
     const timestamp = Date.now();
-    const branchName = `knowiki/proposal-${timestamp}`;
+    const branchName = `evb/proposal-${timestamp}`;
 
     // 1. Create the proposal branch ref pointing to baseBranch HEAD
     const createRefUrl = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/git/refs`;
@@ -171,30 +171,67 @@ export class GitHubWriterService {
     let targetOwner = owner;
     let isFork = false;
 
-    // If 403 or 404 on upstream ref creation, user might need a fork
+    // If 403 or 404 on upstream ref creation, user needs a fork
     if (!createRefRes.ok && (createRefRes.status === 403 || createRefRes.status === 404)) {
-      // Fork repository
-      const forkUrl = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/forks`;
-      await fetch(forkUrl, {
-        method: 'POST',
+      // 1. Check if user already has a fork repository
+      const checkForkUrl = `https://api.github.com/repos/${encodeURIComponent(username)}/${encodeURIComponent(repo)}`;
+      const checkForkRes = await fetch(checkForkUrl, {
         headers: this.getHeaders(token),
       });
+
+      if (!checkForkRes.ok) {
+        // Fork does not exist yet; attempt to create it
+        const forkUrl = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/forks`;
+        const forkRes = await fetch(forkUrl, {
+          method: 'POST',
+          headers: this.getHeaders(token),
+        });
+
+        if (!forkRes.ok && forkRes.status !== 202 && forkRes.status !== 200) {
+          const err = await forkRes.text();
+          throw new Error(
+            `Cannot create proposal branch on ${owner}/${repo} (status ${createRefRes.status}) and failed to fork to ${username}/${repo} (${forkRes.status}): ${err}.\n` +
+            `Ensure you have forked ${owner}/${repo} to @${username} or your GitHub token has permissions to fork repositories.`
+          );
+        }
+
+        // Poll for newly created fork readiness
+        for (let attempt = 0; attempt < 5; attempt++) {
+          await new Promise((r) => setTimeout(r, 1000));
+          const pollRes = await fetch(checkForkUrl, { headers: this.getHeaders(token) });
+          if (pollRes.ok) {
+            break;
+          }
+        }
+      }
 
       targetOwner = username;
       isFork = true;
 
-      // Wait a moment for fork replication
-      await new Promise((r) => setTimeout(r, 2000));
+      let forkCommitSha = commitSha;
+      try {
+        const forkBase = await this.getLatestCommitSha(username, repo, baseBranch, token);
+        forkCommitSha = forkBase.commitSha;
+      } catch {
+        // Fallback to upstream commitSha if fork base branch lookup is unavailable
+      }
 
       const forkRefUrl = `https://api.github.com/repos/${encodeURIComponent(username)}/${encodeURIComponent(repo)}/git/refs`;
-      await fetch(forkRefUrl, {
+      const forkRefRes = await fetch(forkRefUrl, {
         method: 'POST',
         headers: this.getHeaders(token),
         body: JSON.stringify({
           ref: `refs/heads/${branchName}`,
-          sha: commitSha,
+          sha: forkCommitSha,
         }),
       });
+
+      if (!forkRefRes.ok) {
+        const err = await forkRefRes.text();
+        throw new Error(
+          `Failed to create proposal branch '${branchName}' in fork ${username}/${repo} (${forkRefRes.status}): ${err}`
+        );
+      }
     }
 
     // 2. Commit changes to the proposal branch
@@ -215,7 +252,7 @@ export class GitHubWriterService {
       method: 'POST',
       headers: this.getHeaders(token),
       body: JSON.stringify({
-        title: title || message.split('\n')[0] || 'Knowiki Intelligence Update',
+        title: title || message.split('\n')[0] || 'Ever-Brain Intelligence Update',
         head: headRef,
         base: baseBranch,
         body: message,

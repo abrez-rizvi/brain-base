@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { type CallToolResult, type TextContent } from '@modelcontextprotocol/sdk/types.js';
 import { createMcpServer } from '../src/server/mcp-server-factory.js';
 import { ApiClient, ApiClientError } from '../src/client/api-client.js';
 
@@ -84,13 +85,13 @@ describe('MCP Server Factory & Dual Surface', () => {
     it('lists repository resources via resources/list', async () => {
       const res = await client.listResources();
       expect(res.resources).toHaveLength(2);
-      expect(res.resources[0].uri).toBe('knowiki://repo/README.md');
+      expect(res.resources[0].uri).toBe('ever-brain://repo/README.md');
       expect(res.resources[0].mimeType).toBe('text/markdown');
-      expect(res.resources[1].uri).toBe('knowiki://repo/knowledge/arch.md');
+      expect(res.resources[1].uri).toBe('ever-brain://repo/knowledge/arch.md');
     });
 
     it('reads a resource via resources/read', async () => {
-      const res = await client.readResource({ uri: 'knowiki://repo/README.md' });
+      const res = await client.readResource({ uri: 'ever-brain://repo/README.md' });
       expect(res.contents).toHaveLength(1);
       expect((res.contents[0] as any).text).toBe('# Acme Project\nDocumentation');
       expect(res.contents[0].mimeType).toBe('text/markdown');
@@ -107,46 +108,46 @@ describe('MCP Server Factory & Dual Surface', () => {
     });
 
     it('calls list_files tool', async () => {
-      const res = await client.callTool({
+      const res = (await client.callTool({
         name: 'list_files',
         arguments: {},
-      });
+      })) as CallToolResult;
 
       expect(res.isError).toBeFalsy();
-      const text = (res.content[0] as any).text;
+      const text = (res.content[0] as TextContent).text;
       const parsed = JSON.parse(text);
       expect(parsed.repository).toBe('acme/project');
       expect(parsed.totalFiles).toBe(2);
     });
 
     it('calls read_file tool with existing file', async () => {
-      const res = await client.callTool({
+      const res = (await client.callTool({
         name: 'read_file',
         arguments: { path: 'README.md' },
-      });
+      })) as CallToolResult;
 
       expect(res.isError).toBeFalsy();
-      expect((res.content[0] as any).text).toBe('# Acme Project\nDocumentation');
+      expect((res.content[0] as TextContent).text).toBe('# Acme Project\nDocumentation');
     });
 
     it('returns safe error content on read_file failure without RPC crash', async () => {
-      const res = await client.callTool({
+      const res = (await client.callTool({
         name: 'read_file',
         arguments: { path: 'nonexistent.md' },
-      });
+      })) as CallToolResult;
 
       expect(res.isError).toBe(true);
-      expect((res.content[0] as any).text).toContain("File 'nonexistent.md' not found");
+      expect((res.content[0] as TextContent).text).toContain("File 'nonexistent.md' not found");
     });
 
     it('calls search_files tool', async () => {
-      const res = await client.callTool({
+      const res = (await client.callTool({
         name: 'search_files',
         arguments: { query: 'microservices' },
-      });
+      })) as CallToolResult;
 
       expect(res.isError).toBeFalsy();
-      const text = (res.content[0] as any).text;
+      const text = (res.content[0] as TextContent).text;
       const parsed = JSON.parse(text);
       expect(parsed.query).toBe('microservices');
       expect(parsed.totalMatches).toBe(1);

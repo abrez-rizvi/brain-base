@@ -9,7 +9,7 @@ const server = serve(
     port: config.port,
   },
   (info) => {
-    logger.info('Server', `Knowiki API running on http://localhost:${info.port}`);
+    logger.info('Server', `Ever-Brain API running on http://localhost:${info.port}`);
     logger.info('Server', `Environment: ${config.nodeEnv}`);
     if (config.githubToken) {
       logger.info('GitHub Auth', 'GITHUB_TOKEN loaded (5,000 req/hr rate limit enabled)');
@@ -21,9 +21,9 @@ const server = serve(
 
 // Graceful shutdown handling
 const shutdown = () => {
-  logger.info('Server', 'Shutting down Knowiki API gracefully...');
+  logger.info('Server', 'Shutting down Ever-Brain API gracefully...');
   server.close(() => {
-    logger.info('Server', 'Knowiki API stopped.');
+    logger.info('Server', 'Ever-Brain API stopped.');
     process.exit(0);
   });
 };

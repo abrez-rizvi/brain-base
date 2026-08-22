@@ -1,7 +1,7 @@
 {
-  "name": "@knowiki/mcp",
+  "name": "@ever-brain/mcp",
   "version": "1.0.0",
-  "description": "Knowiki MCP — Agent Consumption Adapter",
+  "description": "Ever-Brain MCP — Agent Consumption Adapter",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.13.8",
-    "@knowiki/api": "workspace:*",
+    "@ever-brain/api": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.6.1",
     "dotenv": "^16.4.7",
     "hono": "^4.7.0",

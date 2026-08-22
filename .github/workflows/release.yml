@@ -1,0 +1,108 @@
+name: Release CLI Binaries
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-binaries:
+    name: Build Binary (${{ matrix.target.name }})
+    runs-on: ${{ matrix.target.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - os: windows-latest
+            name: windows-x64
+            artifact_name: ever-brain-windows-x64.exe
+            binary_name: ever-brain.exe
+          - os: macos-latest
+            name: darwin-arm64
+            artifact_name: ever-brain-darwin-arm64
+            binary_name: ever-brain
+          - os: ubuntu-latest
+            name: linux-x64
+            artifact_name: ever-brain-linux-x64
+            binary_name: ever-brain
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Setup Node & pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Packages
+        run: pnpm build
+
+      - name: Compile Standalone Binary (${{ matrix.target.name }})
+        run: |
+          mkdir -p bin
+          bun build ./packages/cli/src/index.ts --compile --minify --target=bun-${{ matrix.target.name }} --outfile ./bin/${{ matrix.target.binary_name }}
+
+      - name: Prepare Named Release Artifact
+        shell: bash
+        run: |
+          cp ./bin/${{ matrix.target.binary_name }} ./${{ matrix.target.artifact_name }}
+          # Also copy a standard ever-brain.exe for direct latest download links on Windows
+          if [ "${{ matrix.target.os }}" = "windows-latest" ]; then
+            cp ./bin/ever-brain.exe ./ever-brain.exe
+          fi
+
+      - name: Upload Binary Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target.name }}
+          path: |
+            ./${{ matrix.target.artifact_name }}
+            ./ever-brain.exe
+          if-no-files-found: ignore
+
+  create-github-release:
+    name: Publish GitHub Release
+    needs: build-binaries
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download All Built Binaries
+        uses: actions/download-artifact@v4
+        with:
+          path: ./release-assets
+          merge-multiple: true
+
+      - name: Create Release and Upload Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            ./release-assets/ever-brain-windows-x64.exe
+            ./release-assets/ever-brain.exe
+            ./release-assets/ever-brain-darwin-arm64
+            ./release-assets/ever-brain-linux-x64
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

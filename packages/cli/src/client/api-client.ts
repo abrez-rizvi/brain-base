@@ -1,4 +1,4 @@
-import { RepoMetadata, FilesResponse, SearchResponse } from '@knowiki/api/contract';
+import { RepoMetadata, FilesResponse, SearchResponse } from '@ever-brain/api/contract';
 
 export class CliApiClient {
   constructor(private baseUrl: string) {}
@@ -17,8 +17,8 @@ export class CliApiClient {
     } catch (err: unknown) {
       const errorMsg = err instanceof Error ? err.message : String(err);
       throw new Error(
-        `Cannot connect to Knowiki API at ${this.baseUrl} (${errorMsg}).\n` +
-        `Is the Knowiki server running? Start it with 'pnpm dev' (or configure --api-url / KNOWIKI_API_URL).`
+        `Cannot connect to Ever-Brain API at ${this.baseUrl} (${errorMsg}).\n` +
+        `Is the Ever-Brain server running? Start it with 'pnpm dev' (or configure --api-url / EVB_API_URL).`
       );
     }
   }
@@ -26,7 +26,7 @@ export class CliApiClient {
   async getRepoMetadata(owner: string, repo: string): Promise<RepoMetadata> {
     const url = this.cleanUrl(`/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`);
     const res = await this.safeFetch(url, {
-      headers: { 'User-Agent': 'Knowiki-CLI/1.0', Accept: 'application/json' },
+      headers: { 'User-Agent': 'Ever-Brain-CLI/1.0', Accept: 'application/json' },
     });
 
     if (!res.ok) {
@@ -59,7 +59,7 @@ export class CliApiClient {
     );
 
     const res = await this.safeFetch(url, {
-      headers: { 'User-Agent': 'Knowiki-CLI/1.0', Accept: 'application/json' },
+      headers: { 'User-Agent': 'Ever-Brain-CLI/1.0', Accept: 'application/json' },
     });
 
     if (!res.ok) {
@@ -90,7 +90,7 @@ export class CliApiClient {
     );
 
     const res = await this.safeFetch(url, {
-      headers: { 'User-Agent': 'Knowiki-CLI/1.0' },
+      headers: { 'User-Agent': 'Ever-Brain-CLI/1.0' },
     });
 
     if (!res.ok) {
@@ -103,8 +103,8 @@ export class CliApiClient {
     }
 
     const content = await res.text();
-    const exactPath = res.headers.get('x-knowiki-path') || cleanPath;
-    const resolvedBranch = res.headers.get('x-knowiki-branch') || branch || 'main';
+    const exactPath = res.headers.get('x-ever-brain-path') || cleanPath;
+    const resolvedBranch = res.headers.get('x-ever-brain-branch') || branch || 'main';
 
     return {
       content,
@@ -129,7 +129,7 @@ export class CliApiClient {
     );
 
     const res = await this.safeFetch(url, {
-      headers: { 'User-Agent': 'Knowiki-CLI/1.0', Accept: 'application/json' },
+      headers: { 'User-Agent': 'Ever-Brain-CLI/1.0', Accept: 'application/json' },
     });
 
     if (!res.ok) {

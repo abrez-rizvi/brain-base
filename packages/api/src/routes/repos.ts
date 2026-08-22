@@ -91,7 +91,7 @@ reposRouter.get('/:owner/:repo/file/*', async (c) => {
 
     const fileRes = await githubService.getRawFileContent(owner, repo, branch, exactPath);
 
-    if (fileRes.status === 404 || !fileRes.content) {
+    if (fileRes.status === 404 || fileRes.content === undefined) {
       return c.json(
         {
           error: `File '${rawPath}' not found in repository ${owner}/${repo} (${branch})`,
@@ -104,8 +104,8 @@ reposRouter.get('/:owner/:repo/file/*', async (c) => {
     const mimeType = resolveMimeType(exactPath);
     return c.text(fileRes.content, 200, {
       'Content-Type': `${mimeType}; charset=utf-8`,
-      'X-Knowiki-Path': exactPath,
-      'X-Knowiki-Branch': branch,
+      'X-Ever-Brain-Path': exactPath,
+      'X-Ever-Brain-Branch': branch,
     });
   } catch (err: unknown) {
     if (err instanceof GitHubError) {
@@ -138,7 +138,7 @@ reposRouter.get('/:owner/:repo/files/*', async (c) => {
 
     const fileRes = await githubService.getRawFileContent(owner, repo, branch, exactPath);
 
-    if (fileRes.status === 404 || !fileRes.content) {
+    if (fileRes.status === 404 || fileRes.content === undefined) {
       return c.json(
         {
           error: `File '${rawPath}' not found in repository ${owner}/${repo} (${branch})`,
@@ -151,8 +151,8 @@ reposRouter.get('/:owner/:repo/files/*', async (c) => {
     const mimeType = resolveMimeType(exactPath);
     return c.text(fileRes.content, 200, {
       'Content-Type': `${mimeType}; charset=utf-8`,
-      'X-Knowiki-Path': exactPath,
-      'X-Knowiki-Branch': branch,
+      'X-Ever-Brain-Path': exactPath,
+      'X-Ever-Brain-Branch': branch,
     });
   } catch (err: unknown) {
     if (err instanceof GitHubError) {

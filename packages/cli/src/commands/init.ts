@@ -26,14 +26,14 @@ export async function handleInit(
       const response = await prompts({
         type: 'text',
         name: 'repo',
-        message: 'Enter Knowiki source GitHub repository (e.g. owner/repo or URL):',
+        message: 'Enter Ever-Brain source GitHub repository (e.g. owner/repo or URL):',
         validate: (value) => (value && value.trim().length > 0 ? true : 'Repository URL is required'),
       });
       repoUrl = response.repo;
     }
 
     if (!repoUrl) {
-      return outputError('Repository URL is required. Usage: knowiki init <owner/repo>', 'INVALID_ARGS', options);
+      return outputError('Repository URL is required. Usage: evb init <owner/repo>', 'INVALID_ARGS', options);
     }
   }
 
@@ -52,7 +52,7 @@ export async function handleInit(
       }
     }
 
-    // 1. Write .knowiki/config.yaml
+    // 1. Write .evb/config.yaml
     projectConfigManager.writeConfig(workspaceRoot, {
       version: 1,
       source: {
@@ -86,13 +86,13 @@ export async function handleInit(
       options,
       () => {
         logger.success(`Resolved repository: ${owner}/${repo} (branch: ${defaultBranch})`);
-        logger.success(`Created local configuration: .knowiki/config.yaml`);
+        logger.success(`Created local configuration: .evb/config.yaml`);
         logger.success(`Updated .gitignore for cache and state files`);
         logger.success(`Synchronized ${syncRes.total} files into local cache`);
         if (bootstrapped.length > 0) {
           logger.success(`Bootstrapped agent meta-skill in: ${bootstrapped.join(', ')}`);
         }
-        console.log(`\n✨ Knowiki connected successfully! Run 'knowiki status' to view details.`);
+        console.log(`\n✨ Ever-Brain connected successfully! Run 'evb status' to view details.`);
       }
     );
   } catch (err: unknown) {

@@ -5,9 +5,9 @@ import { logger } from '../utils/logger.js';
 import { outputResult, outputError, OutputOptions } from '../utils/output.js';
 
 export async function handleKnowledgeList(options: OutputOptions = {}): Promise<void> {
-  const workspaceRoot = projectConfigManager.findKnowikiRoot();
+  const workspaceRoot = projectConfigManager.findEvbRoot();
   if (!workspaceRoot) {
-    return outputError('Not inside a Knowiki project. Run `knowiki init <repo>` first.', 'NOT_IN_WORKSPACE', options);
+    return outputError('Not inside an Ever-Brain project. Run `evb init <repo>` first.', 'NOT_IN_WORKSPACE', options);
   }
 
   try {
@@ -27,7 +27,7 @@ export async function handleKnowledgeList(options: OutputOptions = {}): Promise<
 
     outputResult({ documents: items, total: items.length }, options, () => {
       if (items.length === 0) {
-        console.log(pc.yellow('No knowledge documents found in cache. Run `knowiki sync` to update.'));
+        console.log(pc.yellow('No knowledge documents found in cache. Run `evb sync` to update.'));
         return;
       }
 
@@ -35,7 +35,7 @@ export async function handleKnowledgeList(options: OutputOptions = {}): Promise<
       for (const item of items) {
         console.log(`  • ${pc.bold(pc.white(item.path))} ${item.title !== item.path ? pc.dim(`— ${item.title}`) : ''}`);
       }
-      console.log(pc.dim(`\nTip: Use 'knowiki knowledge show <path>' to view a document.`));
+      console.log(pc.dim(`\nTip: Use 'evb knowledge show <path>' to view a document.`));
     });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
@@ -44,9 +44,9 @@ export async function handleKnowledgeList(options: OutputOptions = {}): Promise<
 }
 
 export async function handleKnowledgeShow(docPath: string, options: OutputOptions = {}): Promise<void> {
-  const workspaceRoot = projectConfigManager.findKnowikiRoot();
+  const workspaceRoot = projectConfigManager.findEvbRoot();
   if (!workspaceRoot) {
-    return outputError('Not inside a Knowiki project. Run `knowiki init <repo>` first.', 'NOT_IN_WORKSPACE', options);
+    return outputError('Not inside an Ever-Brain project. Run `evb init <repo>` first.', 'NOT_IN_WORKSPACE', options);
   }
 
   try {

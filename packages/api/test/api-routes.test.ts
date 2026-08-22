@@ -3,7 +3,7 @@ import { app } from '../src/app.js';
 import { githubService } from '../src/services/github-service.js';
 import { treeCache } from '../src/services/tree-cache.js';
 
-describe('Knowiki API Routes', () => {
+describe('Ever-Brain API Routes', () => {
   beforeEach(() => {
     treeCache.clear();
     vi.restoreAllMocks();
@@ -108,8 +108,8 @@ describe('Knowiki API Routes', () => {
       const res = await app.request('/repos/acme/project/file/README.md');
       expect(res.status).toBe(200);
       expect(res.headers.get('Content-Type')).toContain('text/markdown');
-      expect(res.headers.get('X-Knowiki-Path')).toBe('README.md');
-      expect(res.headers.get('X-Knowiki-Branch')).toBe('main');
+      expect(res.headers.get('X-Ever-Brain-Path')).toBe('README.md');
+      expect(res.headers.get('X-Ever-Brain-Branch')).toBe('main');
 
       const text = await res.text();
       expect(text).toBe('# Test Project\nHello World');
@@ -137,6 +137,33 @@ describe('Knowiki API Routes', () => {
 
       const json = await res.json();
       expect(json.code).toBe('FILE_NOT_FOUND');
+    });
+
+    it('returns 200 OK and empty text when file is empty', async () => {
+      vi.spyOn(githubService, 'getRepoMetadata').mockResolvedValue({
+        owner: 'acme',
+        repo: 'project',
+        defaultBranch: 'main',
+      });
+
+      vi.spyOn(githubService, 'getGitTree').mockResolvedValue([
+        { path: 'empty.txt', mode: '100644', type: 'blob', sha: 'e69de29bb2d1d6434b8b29ae775ad8c2e48c5391', size: 0, url: '' },
+      ]);
+
+      vi.spyOn(githubService, 'getRawFileContent').mockResolvedValue({
+        status: 200,
+        content: '',
+        sizeBytes: 0,
+        durationMs: 5,
+      });
+
+      const res = await app.request('/repos/acme/project/file/empty.txt');
+      expect(res.status).toBe(200);
+      expect(res.headers.get('Content-Type')).toContain('text/plain');
+      expect(res.headers.get('X-Ever-Brain-Path')).toBe('empty.txt');
+
+      const text = await res.text();
+      expect(text).toBe('');
     });
   });
 
