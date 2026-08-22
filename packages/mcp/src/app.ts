@@ -54,6 +54,31 @@ app.post('/messages', handleSseMessage);
 app.all('/mcp/:owner/:repo', handleStreamableHttp);
 app.all('/mcp', handleStreamableHttp);
 
+// --- Direct API Engine Proxy (for CLI & web sync over unified gateway) ---
+app.all('/repos/*', async (c) => {
+  const targetUrl = `${config.apiUrl.replace(/\/+$/, '')}${c.req.path}${c.req.url.includes('?') ? '?' + c.req.url.split('?')[1] : ''}`;
+  const response = await fetch(targetUrl, {
+    method: c.req.method,
+    headers: c.req.raw.headers,
+  });
+  return new Response(response.body, {
+    status: response.status,
+    headers: response.headers,
+  });
+});
+
+app.all('/projects/*', async (c) => {
+  const targetUrl = `${config.apiUrl.replace(/\/+$/, '')}${c.req.path}${c.req.url.includes('?') ? '?' + c.req.url.split('?')[1] : ''}`;
+  const response = await fetch(targetUrl, {
+    method: c.req.method,
+    headers: c.req.raw.headers,
+  });
+  return new Response(response.body, {
+    status: response.status,
+    headers: response.headers,
+  });
+});
+
 // --- Server Discovery Endpoints (Antigravity & Plugin Probes) ---
 app.all('/server/discover', (c) => {
   return c.json({

@@ -26,3 +26,8 @@ Thumbs.db
 .vscode/
 .idea/
 
+
+# Ever-Brain local cache & state
+.evb/cache/
+.evb/state.yaml
+.evb/auth.yaml
