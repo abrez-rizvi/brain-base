@@ -135,5 +135,53 @@ knowiki propose --title "feat: Add Webhook runbook"           # Opens GitHub PR 
 
 ---
 
+## 💡 Trying Knowiki on Any Project on Your PC
+
+You can use Knowiki on **any project or workspace on your computer** without modifying your project's codebase. Here is how to test it end-to-end in 5 minutes:
+
+### 1. Link the CLI globally
+From your `Knowiki-V1` folder, link the CLI so the `knowiki` command is available everywhere:
+```bash
+pnpm --filter @knowiki/cli link --global
+```
+
+### 2. Keep the local API running
+Open a terminal in `Knowiki-V1` and run the API service:
+```bash
+pnpm dev:api
+```
+*(Runs on `http://localhost:3000`)*
+
+### 3. Navigate to any project folder
+In a separate terminal, navigate to any repository or codebase on your machine:
+```bash
+cd C:\path\to\your-other-project
+# or: cd ~/projects/my-app
+```
+
+### 4. Initialize Knowiki
+Connect your project to any GitHub repository containing intelligence, runbooks, or skills:
+```bash
+knowiki init https://github.com/spencerpauly/skills-repo
+```
+
+### 5. What Happens Next
+1. **Auto-Bootstrapped Meta-Skill**: Knowiki detects your environment and installs the `knowiki-operator` meta-skill into:
+   - **Google Antigravity / Gemini**: `.gemini/skills/knowiki/`
+   - **Cursor**: `.cursor/rules/knowiki.mdc`
+   - **Claude Code**: `.claude/skills/knowiki/`
+2. **Instant Agent Context**: Your AI agent can now autonomously query, read, and search project rules and skills!
+3. **Inspect & Materialize**:
+   - `knowiki status` — View connected intelligence repository and cache state.
+   - `knowiki skills list` — List all available runbooks.
+   - `knowiki skills install <skill-name>` — Materialize a skill directly into your agent's skills directory.
+4. **Collaborate & Propose Changes**:
+   - Edit files in `.knowiki/cache/`
+   - `knowiki diff` — Inspect uncommitted local changes.
+   - `knowiki push` / `knowiki propose` — Commit directly or open a GitHub Pull Request.
+
+---
+
 ## 📄 License
 MIT
+

@@ -107,3 +107,31 @@ This equips local AI agents to autonomously discover, read, update, push, and pr
 | `knowiki skills list` | Lists all available project skills |
 | `knowiki skills show <id>` | Renders a skill runbook in the terminal |
 | `knowiki skills install <id>` | Materializes canonical skill into agent-native directories |
+
+---
+
+## 6. End-to-End Workflow: Using Knowiki on Any Local Workspace
+
+Developers can attach Knowiki to any existing project on their machine:
+
+1. **Globally Link CLI**:
+   ```bash
+   pnpm --filter @knowiki/cli link --global
+   ```
+2. **Ensure API is running**:
+   ```bash
+   pnpm dev:api
+   ```
+3. **Navigate to external workspace**:
+   ```bash
+   cd ~/my-other-project  # or C:\Projects\MyOtherApp
+   ```
+4. **Initialize Knowiki connection**:
+   ```bash
+   knowiki init https://github.com/spencerpauly/skills-repo
+   ```
+5. **Observe automatic bootstrapping**:
+   - Meta-skill `.gemini/skills/knowiki/SKILL.md` (or `.cursor/rules/knowiki.mdc` / `.claude/skills/knowiki/`) is written.
+   - Remote skills and knowledge are cached in `.knowiki/cache/`.
+   - Your local agent immediately has access to search, list, and materialize skills for that workspace.
+
