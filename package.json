@@ -19,14 +19,6 @@
     "clean": "pnpm --recursive run clean",
     "setup": "pnpm install && pnpm build"
   },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild"
-    ],
-    "overrides": {
-      "jose": "6.2.9"
-    }
-  },
   "engines": {
     "node": ">=20.0.0",
     "pnpm": ">=9.0.0"

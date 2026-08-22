@@ -1,2 +1,8 @@
 packages:
   - 'packages/*'
+
+onlyBuiltDependencies:
+  - esbuild
+
+overrides:
+  jose: 6.2.9
