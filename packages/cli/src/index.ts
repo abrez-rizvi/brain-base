@@ -12,6 +12,7 @@ import { handleAuthLogin, handleAuthStatus, handleAuthLogout } from './commands/
 import { handleKnowledgeList, handleKnowledgeShow } from './commands/knowledge.js';
 import { handleSkillsList, handleSkillsShow, handleSkillsInstall } from './commands/skills.js';
 import { handleMcp } from './commands/mcp.js';
+import { handleUi } from './commands/ui.js';
 
 const program = new Command();
 
@@ -19,6 +20,17 @@ program
   .name('evb')
   .description('Ever-Brain CLI — Developer Control & Contribution Plane for Shared Project Intelligence')
   .version('1.0.0');
+
+// --- evb ui ---
+program
+  .command('ui')
+  .description('Open the live, reactive Ever-Brain Intelligence Visualizer in the browser')
+  .option('--no-open', 'Display URL and API endpoint without opening browser')
+  .option('--api-url <url>', 'Ever-Brain API endpoint override')
+  .option('--json', 'Output visualizer status in structured JSON format')
+  .action(async (options) => {
+    await handleUi(options);
+  });
 
 // --- evb init ---
 program
@@ -55,7 +67,9 @@ program
 // --- evb diff ---
 program
   .command('diff [path]')
-  .description('Show unified diff of local uncommitted modifications against remote baseline')
+  .description('Show unified diff of local uncommitted modifications with binary & CRLF edge-case protection')
+  .option('--full', 'Expand and display entire diff without line folding')
+  .option('--raw-crlf', 'Do not normalize CRLF line endings')
   .option('--json', 'Output diffs in structured JSON format')
   .action(async (path, options) => {
     await handleDiff(path, options);

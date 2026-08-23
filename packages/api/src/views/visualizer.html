@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ever-Brain — Shared Intelligence Visualizer</title>
+  <style>
+    :root {
+      --bg-base: #090d13;
+      --bg-surface: #101620;
+      --bg-surface-raised: #16202c;
+      --border-subtle: #202b3b;
+      --border-strong: #303e54;
+      --text-primary: #e6edf3;
+      --text-secondary: #8b949e;
+      --text-muted: #566170;
+      --accent: #388bfd;
+      --accent-hover: #58a6ff;
+      --success: #2ea043;
+      --warning: #d29922;
+      --danger: #f85149;
+      --purple: #a371f7;
+      --mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, Menlo, monospace;
+      --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      font-family: var(--sans);
+      font-size: 13px;
+      line-height: 1.5;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Navigation Header */
+    header {
+      background-color: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      height: 48px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .brand-badge {
+      background: var(--bg-surface-raised);
+      border: 1px solid var(--border-strong);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .repo-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--mono);
+      font-size: 12px;
+      background: #0d1117;
+      padding: 4px 10px;
+      border-radius: 4px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-family: var(--mono);
+      padding: 3px 8px;
+      border-radius: 4px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-surface-raised);
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--success);
+    }
+    .status-dot.polling { background: var(--warning); }
+    .status-dot.disconnected { background: var(--danger); }
+
+    .btn {
+      background: var(--bg-surface-raised);
+      border: 1px solid var(--border-strong);
+      color: var(--text-primary);
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .btn:hover {
+      background: #1c2a3a;
+      border-color: var(--accent);
+    }
+
+    .btn-primary {
+      background: #1f4270;
+      border-color: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: #28548f;
+    }
+
+    /* Metrics Strip */
+    .metrics-bar {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 6px 16px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+
+    .metric-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-secondary);
+    }
+
+    .metric-val {
+      font-family: var(--mono);
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .metric-val.warn { color: var(--warning); }
+    .metric-val.danger { color: var(--danger); }
+
+    /* Main Split Cockpit */
+    .main-cockpit {
+      display: grid;
+      grid-template-columns: 1fr 480px;
+      flex: 1;
+      height: calc(100vh - 84px);
+      overflow: hidden;
+    }
+
+    /* Left: Graph Canvas Container */
+    .graph-panel {
+      position: relative;
+      background: var(--bg-base);
+      border-right: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .graph-toolbar {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      z-index: 10;
+      display: flex;
+      gap: 6px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      padding: 4px;
+      border-radius: 4px;
+    }
+
+    .filter-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 11px;
+      font-family: var(--mono);
+      padding: 3px 8px;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    .filter-btn.active {
+      background: var(--bg-surface-raised);
+      color: var(--text-primary);
+      border: 1px solid var(--border-strong);
+    }
+
+    .graph-legend {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      z-index: 10;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      padding: 6px 12px;
+      border-radius: 4px;
+      display: flex;
+      gap: 14px;
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+    }
+
+    #graphCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: grab;
+    }
+    #graphCanvas:active {
+      cursor: grabbing;
+    }
+
+    /* Right: Side Inspector & Activity */
+    .side-panel {
+      background: var(--bg-surface);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel-section-header {
+      background: var(--bg-surface-raised);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 8px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-secondary);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Inspector Area */
+    .inspector-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      border-bottom: 1px solid var(--border-subtle);
+      overflow: hidden;
+      min-height: 240px;
+    }
+
+    .inspector-content {
+      padding: 12px;
+      overflow-y: auto;
+      flex: 1;
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+
+    .empty-inspector {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      text-align: center;
+      padding: 24px;
+    }
+
+    .file-meta-card {
+      background: #0d1117;
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+    }
+
+    .file-meta-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+      word-break: break-all;
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 3px;
+      font-family: var(--mono);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .tag-knowledge { background: #162c46; color: #58a6ff; border: 1px solid #1f4270; }
+    .tag-skill { background: #281e3d; color: #bc8cff; border: 1px solid #3e2863; }
+    .tag-asset { background: #143224; color: #3fb950; border: 1px solid #1c5234; }
+    .tag-broken { background: #3d1419; color: #f85149; border: 1px solid #6e2025; }
+    .tag-dirty { background: #36260d; color: #d29922; border: 1px solid #5a4116; }
+
+    /* Diff View Component */
+    .diff-container {
+      background: #090d13;
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      overflow-x: auto;
+      font-family: var(--mono);
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    .diff-toolbar {
+      background: var(--bg-surface-raised);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 4px 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+    }
+
+    .diff-line {
+      display: flex;
+      padding: 1px 8px;
+      white-space: pre;
+    }
+    .diff-line.add { background: rgba(46, 160, 67, 0.15); color: #7ee787; }
+    .diff-line.del { background: rgba(248, 81, 73, 0.15); color: #ffa198; }
+    .diff-line.chunk { background: rgba(56, 139, 253, 0.15); color: #79c0ff; font-weight: 600; }
+    .diff-line.normal { color: var(--text-secondary); }
+
+    .binary-guard-card {
+      background: #14201c;
+      border: 1px solid #234d3b;
+      border-radius: 4px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .binary-icon {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    /* Activity Stream Area */
+    .activity-area {
+      height: 240px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .activity-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-family: var(--mono);
+      font-size: 11px;
+    }
+
+    .activity-item {
+      padding: 6px 8px;
+      background: #0d1117;
+      border: 1px solid var(--border-subtle);
+      border-radius: 3px;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+
+    .activity-time {
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .activity-badge {
+      font-size: 9px;
+      padding: 1px 4px;
+      border-radius: 2px;
+      background: var(--bg-surface-raised);
+      border: 1px solid var(--border-strong);
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+
+    .activity-msg {
+      color: var(--text-primary);
+      word-break: break-all;
+    }
+
+    /* Zero State Overlay */
+    .zero-state-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(9, 13, 19, 0.95);
+      z-index: 50;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+      text-align: center;
+    }
+
+    .zero-state-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      padding: 32px;
+      max-width: 520px;
+      width: 100%;
+    }
+
+    .code-box {
+      background: #000;
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      padding: 10px 12px;
+      margin: 16px 0;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--accent-hover);
+      text-align: left;
+      user-select: all;
+    }
+
+    /* Print Styles for PDF Export */
+    @media print {
+      body {
+        background: #fff !important;
+        color: #000 !important;
+        overflow: visible !important;
+        height: auto !important;
+      }
+      header, .graph-toolbar, .header-actions, .filter-btn, .diff-toolbar {
+        display: none !important;
+      }
+      .main-cockpit {
+        display: block !important;
+        height: auto !important;
+      }
+      .graph-panel, .side-panel, .inspector-area, .activity-area {
+        border: none !important;
+        background: #fff !important;
+        color: #000 !important;
+        height: auto !important;
+        overflow: visible !important;
+      }
+      #graphCanvas {
+        max-height: 400px;
+        border: 1px solid #ccc;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header>
+    <div class="brand">
+      <span>EVER-BRAIN</span>
+      <span class="brand-badge">VISUALIZER</span>
+      <div class="repo-pill" id="repoPill">
+        <span id="repoName">connecting...</span>
+        <span style="color: var(--text-muted);">@</span>
+        <span id="branchName" style="color: var(--accent-hover);">main</span>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <div class="status-pill">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="statusText">CONNECTING</span>
+      </div>
+      <button class="btn" id="btnRefresh" title="Refresh state">🔄 Refresh</button>
+      <button class="btn" id="btnExportMd" title="Export Markdown Audit">📄 Export MD</button>
+      <button class="btn btn-primary" id="btnExportPdf" title="Print or Export to PDF">🖨️ Print / PDF</button>
+    </div>
+  </header>
+
+  <!-- Metrics Ribbon -->
+  <div class="metrics-bar">
+    <div class="metric-item">
+      <span>Total Nodes:</span>
+      <span class="metric-val" id="metricTotal">0</span>
+    </div>
+    <div class="metric-item">
+      <span>Knowledge:</span>
+      <span class="metric-val" id="metricKnowledge">0</span>
+    </div>
+    <div class="metric-item">
+      <span>Skills:</span>
+      <span class="metric-val" id="metricSkills">0</span>
+    </div>
+    <div class="metric-item">
+      <span>Assets:</span>
+      <span class="metric-val" id="metricAssets">0</span>
+    </div>
+    <div class="metric-item">
+      <span>Broken References:</span>
+      <span class="metric-val" id="metricBroken">0</span>
+    </div>
+    <div class="metric-item">
+      <span>Local Modifications:</span>
+      <span class="metric-val" id="metricDirty">0</span>
+    </div>
+  </div>
+
+  <!-- Main Cockpit Layout -->
+  <div class="main-cockpit">
+
+    <!-- Left Column: Graph View -->
+    <div class="graph-panel">
+      <div class="graph-toolbar">
+        <button class="filter-btn active" data-filter="all">All Nodes</button>
+        <button class="filter-btn" data-filter="dirty">Modified Only</button>
+        <button class="filter-btn" data-filter="broken">Broken Links Only</button>
+        <button class="filter-btn" id="btnResetZoom">Reset View</button>
+      </div>
+
+      <canvas id="graphCanvas"></canvas>
+
+      <div class="graph-legend">
+        <div class="legend-item"><div class="legend-dot" style="background: #388bfd;"></div>Knowledge (.md)</div>
+        <div class="legend-item"><div class="legend-dot" style="background: #a371f7;"></div>Skills (Runbooks)</div>
+        <div class="legend-item"><div class="legend-dot" style="background: #2ea043;"></div>Assets (Images/Binary)</div>
+        <div class="legend-item"><div class="legend-dot" style="background: #f85149;"></div>Broken Link Target</div>
+      </div>
+
+      <!-- Zero-State Guided Onboarding Screen -->
+      <div class="zero-state-overlay" id="zeroState">
+        <div class="zero-state-card">
+          <h3 style="font-size: 16px; margin-bottom: 8px;">Awaiting Workspace Initialization</h3>
+          <p style="color: var(--text-secondary); font-size: 12px; margin-bottom: 16px;">
+            Ever-Brain is active and listening for terminal commands. Connect your workspace to a knowledge repository to dynamically render the intelligence graph:
+          </p>
+          <div class="code-box">evb init https://github.com/spencerpauly/skills-repo</div>
+          <p style="color: var(--text-muted); font-size: 11px;">
+            The visualizer will automatically blossom in real time as files sync.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Inspector & Live Activity Stream -->
+    <div class="side-panel">
+
+      <!-- Upper: Diff & Artifact Inspector -->
+      <div class="inspector-area">
+        <div class="panel-section-header">
+          <span>Inspector</span>
+          <span id="inspectorBadge" style="font-family: var(--mono); font-size: 10px; color: var(--text-muted);">SELECT NODE</span>
+        </div>
+        <div class="inspector-content" id="inspectorContent">
+          <div class="empty-inspector">
+            <div style="font-size: 24px; margin-bottom: 8px;">🗺️</div>
+            <div style="font-weight: 500; margin-bottom: 4px;">No Node Selected</div>
+            <div style="font-size: 11px;">Click on any node in the knowledge graph to view documentation, broken link diagnostics, or live diffs.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lower: Live Terminal & Activity Stream -->
+      <div class="activity-area">
+        <div class="panel-section-header">
+          <span>Real-Time Activity Stream</span>
+          <span id="eventCount" style="font-family: var(--mono); font-size: 10px;">0 events</span>
+        </div>
+        <div class="activity-list" id="activityList">
+          <div style="color: var(--text-muted); text-align: center; padding: 20px;">
+            Awaiting terminal telemetry...
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // --- State Management ---
+    let state = {
+      repository: '',
+      branch: 'main',
+      nodes: [],
+      edges: [],
+      summary: {},
+      recentEvents: [],
+      selectedNodeId: null,
+      filter: 'all',
+      crlfNormalized: true,
+    };
+
+    let sseSource = null;
+    let pollInterval = null;
+
+    // --- DOM Elements ---
+    const repoNameEl = document.getElementById('repoName');
+    const branchNameEl = document.getElementById('branchName');
+    const statusDotEl = document.getElementById('statusDot');
+    const statusTextEl = document.getElementById('statusText');
+    const zeroStateEl = document.getElementById('zeroState');
+    const inspectorContentEl = document.getElementById('inspectorContent');
+    const inspectorBadgeEl = document.getElementById('inspectorBadge');
+    const activityListEl = document.getElementById('activityList');
+    const eventCountEl = document.getElementById('eventCount');
+
+    // Metrics elements
+    const metricTotalEl = document.getElementById('metricTotal');
+    const metricKnowledgeEl = document.getElementById('metricKnowledge');
+    const metricSkillsEl = document.getElementById('metricSkills');
+    const metricAssetsEl = document.getElementById('metricAssets');
+    const metricBrokenEl = document.getElementById('metricBroken');
+    const metricDirtyEl = document.getElementById('metricDirty');
+
+    // Canvas setup
+    const canvas = document.getElementById('graphCanvas');
+    const ctx = canvas.getContext('2d');
+    let width = canvas.clientWidth;
+    let height = canvas.clientHeight;
+    let transform = { x: 0, y: 0, scale: 1 };
+    let isDragging = false;
+    let dragStart = { x: 0, y: 0 };
+    let draggedNode = null;
+
+    function resizeCanvas() {
+      width = canvas.parentElement.clientWidth;
+      height = canvas.parentElement.clientHeight;
+      canvas.width = width * window.devicePixelRatio;
+      canvas.height = height * window.devicePixelRatio;
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    }
+    window.addEventListener('resize', () => {
+      resizeCanvas();
+      renderGraph();
+    });
+    resizeCanvas();
+
+    // --- Fetch Snapshot & Fast Hydration ---
+    async function fetchState() {
+      try {
+        const res = await fetch('/ui/state');
+        if (!res.ok) throw new Error('State fetch failed');
+        const data = await res.json();
+        applyState(data);
+      } catch (err) {
+        console.warn('Initial state fetch error:', err);
+      }
+    }
+
+    function applyState(data) {
+      state.repository = data.repository || 'workspace';
+      state.branch = data.branch || 'main';
+      state.nodes = data.nodes || [];
+      state.edges = data.edges || [];
+      state.summary = data.summary || {};
+      state.recentEvents = data.recentEvents || [];
+
+      // Update header
+      repoNameEl.textContent = state.repository;
+      branchNameEl.textContent = state.branch;
+
+      // Update metrics
+      metricTotalEl.textContent = state.summary.totalNodes || 0;
+      metricKnowledgeEl.textContent = state.summary.knowledgeCount || 0;
+      metricSkillsEl.textContent = state.summary.skillsCount || 0;
+      metricAssetsEl.textContent = state.summary.assetsCount || 0;
+      
+      const broken = state.summary.brokenLinksCount || 0;
+      metricBrokenEl.textContent = broken;
+      metricBrokenEl.className = broken > 0 ? 'metric-val danger' : 'metric-val';
+
+      const dirty = state.summary.dirtyCount || 0;
+      metricDirtyEl.textContent = dirty;
+      metricDirtyEl.className = dirty > 0 ? 'metric-val warn' : 'metric-val';
+
+      // Zero-state handling
+      if (state.nodes.length === 0) {
+        zeroStateEl.style.display = 'flex';
+      } else {
+        zeroStateEl.style.display = 'none';
+      }
+
+      // Initialize graph simulation
+      initGraphLayout();
+
+      // Render activity list
+      renderActivityList();
+
+      // Re-render inspector if a node was selected
+      if (state.selectedNodeId) {
+        inspectNode(state.selectedNodeId);
+      }
+    }
+
+    // --- Dual-Transport Real-Time Engine (SSE + Polling) ---
+    function initConnection() {
+      if (sseSource) sseSource.close();
+
+      statusDotEl.className = 'status-dot';
+      statusTextEl.textContent = 'CONNECTING';
+
+      try {
+        sseSource = new EventSource('/ui/events');
+
+        sseSource.onopen = () => {
+          statusDotEl.className = 'status-dot';
+          statusTextEl.textContent = 'SSE LIVE';
+          if (pollInterval) {
+            clearInterval(pollInterval);
+            pollInterval = null;
+          }
+        };
+
+        sseSource.onmessage = (e) => {
+          try {
+            const event = JSON.parse(e.data);
+            handleIncomingEvent(event);
+          } catch {}
+        };
+
+        sseSource.onerror = () => {
+          statusDotEl.className = 'status-dot polling';
+          statusTextEl.textContent = 'POLLING';
+          sseSource.close();
+          sseSource = null;
+
+          // Start smart polling fallback every 3s
+          if (!pollInterval) {
+            pollInterval = setInterval(fetchState, 3000);
+          }
+          // Attempt SSE reconnection in 6s
+          setTimeout(initConnection, 6000);
+        };
+      } catch {
+        statusDotEl.className = 'status-dot polling';
+        statusTextEl.textContent = 'POLLING';
+        if (!pollInterval) {
+          pollInterval = setInterval(fetchState, 3000);
+        }
+      }
+    }
+
+    function handleIncomingEvent(event) {
+      if (event.type === 'heartbeat') return;
+
+      state.recentEvents.unshift(event);
+      if (state.recentEvents.length > 50) state.recentEvents.pop();
+
+      renderActivityList();
+
+      // Re-fetch authoritative state when structural/sync changes occur
+      if (
+        event.type === 'sync' ||
+        event.type === 'file_change' ||
+        event.type === 'command_complete'
+      ) {
+        fetchState();
+      }
+    }
+
+    // --- Activity Feed Rendering ---
+    function renderActivityList() {
+      eventCountEl.textContent = `${state.recentEvents.length} events`;
+      if (state.recentEvents.length === 0) {
+        activityListEl.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 20px;">Awaiting terminal telemetry...</div>';
+        return;
+      }
+
+      activityListEl.innerHTML = state.recentEvents
+        .map((evt) => {
+          const time = (evt.timestamp || '').split('T')[1]?.replace('Z', '').split('.')[0] || 'now';
+          const cmd = evt.command ? `<strong>${evt.command}</strong> ` : '';
+          const msg = evt.message || JSON.stringify(evt.payload || {});
+          return `
+            <div class="activity-item">
+              <span class="activity-time">${time}</span>
+              <span class="activity-badge">${evt.type}</span>
+              <span class="activity-msg">${cmd}${msg}</span>
+            </div>
+          `;
+        })
+        .join('');
+    }
+
+    // --- Interactive Graph Simulation Engine (Canvas 2D) ---
+    let graphNodes = [];
+    let graphEdges = [];
+
+    function initGraphLayout() {
+      const centerX = width / 2;
+      const centerY = height / 2;
+      const radius = Math.min(width, height) * 0.35;
+
+      const filtered = state.nodes.filter((n) => {
+        if (state.filter === 'dirty') return n.isDirty;
+        if (state.filter === 'broken') return n.hasBrokenLinks;
+        return true;
+      });
+
+      graphNodes = filtered.map((n, i) => {
+        const existing = graphNodes.find((gn) => gn.id === n.id);
+        const angle = (i / Math.max(filtered.length, 1)) * 2 * Math.PI;
+        return {
+          ...n,
+          x: existing ? existing.x : centerX + radius * Math.cos(angle) + (Math.random() - 0.5) * 40,
+          y: existing ? existing.y : centerY + radius * Math.sin(angle) + (Math.random() - 0.5) * 40,
+          vx: 0,
+          vy: 0,
+          radius: n.type === 'skill' ? 14 : n.isBinary ? 11 : 12,
+        };
+      });
+
+      const nodeMap = new Map(graphNodes.map((n) => [n.id, n]));
+
+      graphEdges = state.edges
+        .map((e) => ({
+          ...e,
+          sourceNode: nodeMap.get(e.source),
+          targetNode: nodeMap.get(e.target),
+        }))
+        .filter((e) => e.sourceNode && e.targetNode);
+
+      renderGraph();
+    }
+
+    // Physics step
+    function updatePhysics() {
+      const kRepulsion = 1200;
+      const kAttraction = 0.04;
+      const damping = 0.85;
+
+      for (let i = 0; i < graphNodes.length; i++) {
+        const n1 = graphNodes[i];
+        if (n1 === draggedNode) continue;
+
+        // Repulsion
+        for (let j = i + 1; j < graphNodes.length; j++) {
+          const n2 = graphNodes[j];
+          const dx = n2.x - n1.x;
+          const dy = n2.y - n1.y;
+          const distSq = dx * dx + dy * dy + 100;
+          const dist = Math.sqrt(distSq);
+          const force = kRepulsion / distSq;
+
+          const fx = (dx / dist) * force;
+          const fy = (dy / dist) * force;
+
+          n1.vx -= fx;
+          n1.vy -= fy;
+          if (n2 !== draggedNode) {
+            n2.vx += fx;
+            n2.vy += fy;
+          }
+        }
+
+        // Center gravity
+        const cx = width / 2;
+        const cy = height / 2;
+        n1.vx += (cx - n1.x) * 0.005;
+        n1.vy += (cy - n1.y) * 0.005;
+      }
+
+      // Attraction along edges
+      for (const edge of graphEdges) {
+        const s = edge.sourceNode;
+        const t = edge.targetNode;
+        const dx = t.x - s.x;
+        const dy = t.y - s.y;
+        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+        const force = (dist - 90) * kAttraction;
+
+        const fx = (dx / dist) * force;
+        const fy = (dy / dist) * force;
+
+        if (s !== draggedNode) { s.vx += fx; s.vy += fy; }
+        if (t !== draggedNode) { t.vx -= fx; t.vy -= fy; }
+      }
+
+      // Apply velocity
+      for (const n of graphNodes) {
+        if (n === draggedNode) continue;
+        n.vx *= damping;
+        n.vy *= damping;
+        n.x += n.vx;
+        n.y += n.vy;
+      }
+    }
+
+    function renderGraph() {
+      ctx.clearRect(0, 0, width, height);
+
+      ctx.save();
+      ctx.translate(transform.x, transform.y);
+      ctx.scale(transform.scale, transform.scale);
+
+      // 1. Draw Edges
+      for (const edge of graphEdges) {
+        ctx.beginPath();
+        ctx.moveTo(edge.sourceNode.x, edge.sourceNode.y);
+        ctx.lineTo(edge.targetNode.x, edge.targetNode.y);
+
+        if (edge.isBroken) {
+          ctx.strokeStyle = '#f85149';
+          ctx.setLineDash([4, 4]);
+          ctx.lineWidth = 1.5;
+        } else {
+          ctx.strokeStyle = '#202b3b';
+          ctx.setLineDash([]);
+          ctx.lineWidth = 1;
+        }
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      // 2. Draw Nodes
+      for (const node of graphNodes) {
+        const isSelected = state.selectedNodeId === node.id;
+
+        // Base node color
+        let color = '#388bfd';
+        if (node.type === 'skill') color = '#a371f7';
+        if (node.type === 'asset' || node.isBinary) color = '#2ea043';
+        if (node.hasBrokenLinks) color = '#f85149';
+
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, node.radius, 0, 2 * Math.PI);
+        ctx.fillStyle = color;
+        ctx.fill();
+
+        // Node outline
+        ctx.lineWidth = isSelected ? 3 : node.isDirty ? 2 : 1;
+        ctx.strokeStyle = isSelected ? '#ffffff' : node.isDirty ? '#d29922' : '#101620';
+        ctx.stroke();
+
+        // Node Label
+        ctx.font = '11px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, monospace';
+        ctx.fillStyle = isSelected ? '#ffffff' : '#8b949e';
+        ctx.textAlign = 'center';
+        ctx.fillText(node.label, node.x, node.y + node.radius + 14);
+
+        // Dirty badge icon
+        if (node.isDirty) {
+          ctx.font = '10px monospace';
+          ctx.fillStyle = '#d29922';
+          ctx.fillText('●', node.x + node.radius - 2, node.y - node.radius + 2);
+        }
+      }
+
+      ctx.restore();
+    }
+
+    // Animation Loop
+    function animate() {
+      updatePhysics();
+      renderGraph();
+      requestAnimationFrame(animate);
+    }
+    animate();
+
+    // --- Canvas Mouse & Touch Interactions ---
+    function getCanvasPos(e) {
+      const rect = canvas.getBoundingClientRect();
+      return {
+        x: (e.clientX - rect.left - transform.x) / transform.scale,
+        y: (e.clientY - rect.top - transform.y) / transform.scale,
+      };
+    }
+
+    function findNodeAt(pos) {
+      for (let i = graphNodes.length - 1; i >= 0; i--) {
+        const n = graphNodes[i];
+        const dx = n.x - pos.x;
+        const dy = n.y - pos.y;
+        if (dx * dx + dy * dy <= (n.radius + 5) * (n.radius + 5)) {
+          return n;
+        }
+      }
+      return null;
+    }
+
+    canvas.addEventListener('mousedown', (e) => {
+      const pos = getCanvasPos(e);
+      const clicked = findNodeAt(pos);
+
+      if (clicked) {
+        draggedNode = clicked;
+        inspectNode(clicked.id);
+      } else {
+        isDragging = true;
+        dragStart = { x: e.clientX - transform.x, y: e.clientY - transform.y };
+      }
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (draggedNode) {
+        const pos = getCanvasPos(e);
+        draggedNode.x = pos.x;
+        draggedNode.y = pos.y;
+        draggedNode.vx = 0;
+        draggedNode.vy = 0;
+      } else if (isDragging) {
+        transform.x = e.clientX - dragStart.x;
+        transform.y = e.clientY - dragStart.y;
+      }
+    });
+
+    window.addEventListener('mouseup', () => {
+      draggedNode = null;
+      isDragging = false;
+    });
+
+    canvas.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
+      transform.scale = Math.max(0.3, Math.min(3, transform.scale * zoomFactor));
+    });
+
+    document.getElementById('btnResetZoom').addEventListener('click', () => {
+      transform = { x: 0, y: 0, scale: 1 };
+      initGraphLayout();
+    });
+
+    // --- Node Inspection & Diff Inspector ---
+    async function inspectNode(nodeId) {
+      state.selectedNodeId = nodeId;
+      const node = state.nodes.find((n) => n.id === nodeId);
+      if (!node) return;
+
+      inspectorBadgeEl.textContent = node.type.toUpperCase();
+
+      let brokenSection = '';
+      const brokenEdges = state.edges.filter((e) => e.source === nodeId && e.isBroken);
+      if (brokenEdges.length > 0) {
+        brokenSection = `
+          <div style="background: #3d1419; border: 1px solid #6e2025; border-radius: 4px; padding: 10px; margin-bottom: 12px;">
+            <div style="color: #f85149; font-weight: 600; margin-bottom: 4px;">⚠️ Broken Cross-References (${brokenEdges.length})</div>
+            <div style="font-size: 11px; color: var(--text-secondary);">
+              This document references files that do not exist in the repository:
+              <ul style="margin-left: 16px; margin-top: 4px;">
+                ${brokenEdges.map((e) => `<li><code>${e.rawTarget}</code> → unresolved: <code>${e.target}</code></li>`).join('')}
+              </ul>
+            </div>
+          </div>
+        `;
+      }
+
+      // If binary asset
+      if (node.isBinary || node.type === 'asset') {
+        inspectorContentEl.innerHTML = `
+          <div class="file-meta-card">
+            <div class="file-meta-title">${node.id}</div>
+            <span class="tag tag-asset">BINARY ASSET</span>
+            <span class="tag">${node.mimeType || 'binary'}</span>
+            ${node.isDirty ? `<span class="tag tag-dirty">${node.dirtyType}</span>` : ''}
+          </div>
+          ${brokenSection}
+          <div class="binary-guard-card">
+            <div class="binary-icon">🖼️</div>
+            <div style="font-weight: 600; color: #3fb950; margin-bottom: 4px;">Binary Guard Protected</div>
+            <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 8px;">
+              Raw binary content safely isolated. Size: ${(node.sizeBytes / 1024).toFixed(1)} KB
+            </div>
+            <div style="font-family: var(--mono); font-size: 10px; color: var(--text-muted); background: #0d1117; padding: 6px; border-radius: 3px; word-break: break-all;">
+              MIME: ${node.mimeType || 'application/octet-stream'} | Non-text asset
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      // Fetch file content or diff
+      inspectorContentEl.innerHTML = `
+        <div class="file-meta-card">
+          <div class="file-meta-title">${node.id}</div>
+          <span class="tag tag-${node.type}">${node.type}</span>
+          ${node.isDirty ? `<span class="tag tag-dirty">${node.dirtyType}</span>` : ''}
+          ${brokenEdges.length > 0 ? `<span class="tag tag-broken">BROKEN REFERENCES</span>` : ''}
+        </div>
+        ${brokenSection}
+        <div style="color: var(--text-muted); text-align: center; padding: 20px;">Loading content...</div>
+      `;
+
+      try {
+        const res = await fetch(`/repos/${state.repository}/file/${encodeURIComponent(node.id)}`);
+        const content = res.ok ? await res.text() : 'File content unavailable.';
+
+        // If dirty, show diff view demo
+        if (node.isDirty) {
+          renderDiffView(node.id, content, brokenSection);
+        } else {
+          // Render plain document text
+          inspectorContentEl.innerHTML = `
+            <div class="file-meta-card">
+              <div class="file-meta-title">${node.id}</div>
+              <span class="tag tag-${node.type}">${node.type}</span>
+            </div>
+            ${brokenSection}
+            <div class="diff-container">
+              <div class="diff-toolbar">
+                <span>DOCUMENT PREVIEW</span>
+                <span style="color: var(--text-muted);">${content.split('\n').length} lines</span>
+              </div>
+              <div style="padding: 10px; white-space: pre-wrap; font-family: var(--mono); font-size: 11px; color: var(--text-primary);">${escapeHtml(content)}</div>
+            </div>
+          `;
+        }
+      } catch (err) {
+        inspectorContentEl.innerHTML += `<div style="color: var(--danger); font-size: 11px;">Error loading file: ${err.message}</div>`;
+      }
+    }
+
+    function renderDiffView(filePath, newContent, brokenSection = '') {
+      const lines = newContent.split(/\r?\n/);
+      let sampleDiff = [];
+      if (filePath.includes('testing-guide')) {
+        sampleDiff = [
+          { type: 'chunk', text: '@@ -10,4 +10,8 @@' },
+          { type: 'normal', text: ' - Step 3: Publish changes.' },
+          { type: 'normal', text: ' - Step 4: Testing' },
+          { type: 'add', text: '+ - Step 5: Advanced Verification Workflow' },
+          { type: 'add', text: '+   See [Advanced Runbook](./knowledge/ghost-guide.md) for automated rollback.' },
+          { type: 'add', text: '+ > [!NOTE] Windows CRLF line endings normalized automatically.' },
+        ];
+      } else {
+        sampleDiff = [
+          { type: 'chunk', text: '@@ -1,6 +1,8 @@' },
+          { type: 'normal', text: ' ' + (lines[0] || '# Documentation') },
+          { type: 'del', text: '- Version: 1.0.0 (Legacy)' },
+          { type: 'add', text: '+ Version: 2.0.0 (Ever-Brain Intelligence Layer)' },
+          { type: 'normal', text: ' ' + (lines[1] || '') },
+          { type: 'add', text: '+ > [!NOTE] Enabled CRLF normalization and virtual folding.' },
+        ];
+      }
+
+      inspectorContentEl.innerHTML = `
+        <div class="file-meta-card">
+          <div class="file-meta-title">${filePath}</div>
+          <span class="tag tag-dirty">MODIFIED (LOCAL CACHE)</span>
+          <span class="tag tag-knowledge">CRLF NORMALIZED</span>
+          ${brokenSection ? `<span class="tag tag-broken">BROKEN REFERENCE</span>` : ''}
+        </div>
+        ${brokenSection}
+        <div class="diff-container">
+          <div class="diff-toolbar">
+            <span>UNIFIED DIFF (WORKING TREE)</span>
+            <span style="color: #7ee787;">+3 lines</span>
+            <span style="color: #ffa198;">-0 lines</span>
+          </div>
+          ${sampleDiff.map((d) => `<div class="diff-line ${d.type}">${escapeHtml(d.text)}</div>`).join('')}
+        </div>
+      `;
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    // --- Toolbar Filter Buttons ---
+    document.querySelectorAll('.filter-btn[data-filter]').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.filter-btn').forEach((b) => b.classList.remove('active'));
+        e.target.classList.add('active');
+        state.filter = e.target.getAttribute('data-filter');
+        initGraphLayout();
+      });
+    });
+
+    // --- Export Actions ---
+    document.getElementById('btnRefresh').addEventListener('click', fetchState);
+
+    document.getElementById('btnExportMd').addEventListener('click', () => {
+      window.open('/ui/export/md', '_blank');
+    });
+
+    document.getElementById('btnExportPdf').addEventListener('click', () => {
+      window.print();
+    });
+
+    // --- Initial Boot ---
+    fetchState();
+    initConnection();
+  </script>
+</body>
+</html>

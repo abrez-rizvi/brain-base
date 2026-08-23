@@ -65,7 +65,7 @@ export class CacheService {
           walk(fullPath);
         } else if (entry.isFile()) {
           const relPath = normalizePosixPath(path.relative(cacheDir, fullPath));
-          if (!isBinaryOrIgnoredFile(relPath)) {
+          if (!relPath.startsWith('.') && !relPath.includes('/.')) {
             results.push(relPath);
           }
         }

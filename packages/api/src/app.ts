@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { healthRouter } from './routes/health.js';
 import { reposRouter } from './routes/repos.js';
+import { uiRouter } from './routes/ui.js';
 
 export const app = new Hono();
 
@@ -10,7 +11,7 @@ app.use(
   '*',
   cors({
     origin: '*',
-    allowMethods: ['GET', 'HEAD', 'OPTIONS'],
+    allowMethods: ['GET', 'POST', 'HEAD', 'OPTIONS'],
     allowHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
     exposeHeaders: ['X-Ever-Brain-Path', 'X-Ever-Brain-Branch'],
   })
@@ -19,6 +20,7 @@ app.use(
 // Route mounts
 app.route('/health', healthRouter);
 app.route('/repos', reposRouter);
+app.route('/ui', uiRouter);
 
 // Backward compatibility mount: /projects/:owner/:repo -> /repos/:owner/:repo
 app.route('/projects', reposRouter);
@@ -31,6 +33,11 @@ app.get('/', (c) => {
     description: 'Ever-Brain Stateless Content Access Layer',
     endpoints: [
       'GET /health',
+      'GET /ui',
+      'GET /ui/state',
+      'GET /ui/events',
+      'POST /ui/events',
+      'GET /ui/export/md',
       'GET /repos/:owner/:repo',
       'GET /repos/:owner/:repo/files',
       'GET /repos/:owner/:repo/file/*path',

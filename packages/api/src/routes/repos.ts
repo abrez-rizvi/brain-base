@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import { Hono } from 'hono';
 import { githubService, GitHubError } from '../services/github-service.js';
 import { resolverService } from '../services/resolver-service.js';
@@ -76,6 +78,25 @@ reposRouter.get('/:owner/:repo/file/*', async (c) => {
   const branchParam = c.req.query('branch');
 
   try {
+    const isLocal = c.req.query('local') === 'true';
+    if (isLocal) {
+      const candidateLocal = [
+        path.resolve('D:/trial/.evb/cache', rawPath),
+        path.resolve(process.cwd(), '.evb/cache', rawPath),
+      ];
+      for (const lp of candidateLocal) {
+        if (fs.existsSync(lp)) {
+          const content = fs.readFileSync(lp, 'utf8');
+          const mimeType = resolveMimeType(rawPath);
+          return c.text(content, 200, {
+            'Content-Type': `${mimeType}; charset=utf-8`,
+            'X-Ever-Brain-Path': rawPath,
+            'X-Ever-Brain-Branch': 'local',
+          });
+        }
+      }
+    }
+
     let targetBranch = branchParam;
     if (!targetBranch) {
       const meta = await githubService.getRepoMetadata(owner, repo);
@@ -92,6 +113,22 @@ reposRouter.get('/:owner/:repo/file/*', async (c) => {
     const fileRes = await githubService.getRawFileContent(owner, repo, branch, exactPath);
 
     if (fileRes.status === 404 || fileRes.content === undefined) {
+      const candidateLocal = [
+        path.resolve('D:/trial/.evb/cache', rawPath),
+        path.resolve(process.cwd(), '.evb/cache', rawPath),
+      ];
+      for (const lp of candidateLocal) {
+        if (fs.existsSync(lp)) {
+          const content = fs.readFileSync(lp, 'utf8');
+          const mimeType = resolveMimeType(rawPath);
+          return c.text(content, 200, {
+            'Content-Type': `${mimeType}; charset=utf-8`,
+            'X-Ever-Brain-Path': rawPath,
+            'X-Ever-Brain-Branch': 'local',
+          });
+        }
+      }
+
       return c.json(
         {
           error: `File '${rawPath}' not found in repository ${owner}/${repo} (${branch})`,

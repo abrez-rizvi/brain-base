@@ -77,6 +77,7 @@ Comprehensive documentation is available in the [`docs/wiki/`](./docs/wiki/) dir
 - [**04. MCP Specification & Agent Adapter**](./docs/wiki/04-mcp-specification-and-adapter.md) — Dual transport specs, dual capability declaration, resources & tools mapping, and error ergonomics.
 - [**05. CLI Specification & Workflows**](./docs/wiki/05-cli-specification-and-workflows.md) — Pure filesystem cache (`.evb/`), agent meta-skill bootstrapping, dirty diffing, and GitHub-native RBAC (`push` / `propose`).
 - [**06. Roadmap & Next Steps**](./docs/wiki/06-roadmap-and-next-steps.md) — Supabase cloud deployment, production hardening, and continuous learning roadmap.
+- [**07. Visualizer & Robust Edge-Case Handling**](./docs/wiki/07-visualizer-and-edge-case-handling.md) — Real-time reactive web cockpit, dual-transport resilience, binary guards, and broken reference detection.
 
 ---
 
@@ -179,11 +180,28 @@ evb skills list
 evb skills show testing
 evb skills install testing --target gemini # or cursor, claude
 
-# Check diffs and publish changes
+# Open the live, reactive Ever-Brain Intelligence Visualizer in your browser
+evb ui
+
+# Check diffs with robust binary asset protection & CRLF line-ending normalization
 evb diff
 evb push -m "feat(skills): add database migration runbook" # Direct commit for maintainers
 evb propose --title "feat: Add Webhook runbook"           # Opens GitHub PR for contributors
 ```
+
+---
+
+## 🗺️ Live Intelligence Visualizer (`evb ui`)
+
+Ever-Brain includes an embedded, high-density, real-time web visualizer and robust terminal engine accessible via `evb ui` or `http://localhost:3000/ui`:
+
+* **Anytime Lifecycle (Dual-Phase Hydration)**: Launch the UI before, during, or after running commands; it automatically hydrates the current repository graph and historical activity timeline.
+* **Interactive Knowledge & Skill Graph**: 60 FPS Canvas/SVG graph visualizing documents, skills, rules, and cross-references.
+* **Broken Cross-Reference Radar**: Highlights unresolvable Markdown reference links (`⚠️ Broken Link`) with diagnostics.
+* **Binary Asset Guard**: Safely displays image previews, file sizes, and delta metrics without corrupted text or crashes.
+* **CRLF / LF Normalizer**: Strips cross-platform whitespace churn so diffs isolate true semantic changes.
+* **Dual-Transport Resilience**: Real-time Server-Sent Events (SSE) with 3-second smart polling fallback for hosted/cloud environments.
+* **1-Click Audit Exporter**: One-click download of `EVER_BRAIN_AUDIT.md` and clean print-to-PDF reports.
 
 ## 📄 License
 MIT

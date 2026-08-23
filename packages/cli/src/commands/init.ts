@@ -5,6 +5,7 @@ import { metaSkillService } from '../services/meta-skill-service.js';
 import { CliApiClient } from '../client/api-client.js';
 import { logger } from '../utils/logger.js';
 import { outputResult, outputError } from '../utils/output.js';
+import { emitTelemetry } from '../utils/telemetry.js';
 
 export interface InitCommandOptions {
   branch?: string;
@@ -42,6 +43,16 @@ export async function handleInit(
     const apiUrl = options.apiUrl || projectConfigManager.getApiUrl();
     const client = new CliApiClient(apiUrl);
 
+    void emitTelemetry(
+      {
+        type: 'command_start',
+        command: 'init',
+        message: `Connecting workspace to ${owner}/${repo}...`,
+        payload: { repository: `${owner}/${repo}` },
+      },
+      workspaceRoot
+    );
+
     let defaultBranch = options.branch;
     if (!defaultBranch) {
       try {
@@ -75,6 +86,21 @@ export async function handleInit(
       bootstrapped = metaRes.installedLocations;
     }
 
+    void emitTelemetry(
+      {
+        type: 'command_complete',
+        command: 'init',
+        message: `Initialized ${owner}/${repo} (${defaultBranch}): ${syncRes.total} files cached`,
+        payload: {
+          repository: `${owner}/${repo}`,
+          branch: defaultBranch,
+          filesCached: syncRes.total,
+          metaSkillsInstalled: bootstrapped,
+        },
+      },
+      workspaceRoot
+    );
+
     outputResult(
       {
         status: 'initialized',
@@ -97,6 +123,14 @@ export async function handleInit(
     );
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
+    void emitTelemetry(
+      {
+        type: 'command_error',
+        command: 'init',
+        message: `Init error: ${message}`,
+      },
+      workspaceRoot
+    );
     outputError(message, 'INIT_ERROR', options);
   }
 }
