@@ -45,10 +45,10 @@ describe('UI Routes (/ui)', () => {
     });
 
     vi.spyOn(githubService, 'getGitTree').mockResolvedValue([
-      { path: 'README.md', mode: '100644', type: 'blob', sha: '111', size: 100 },
-      { path: 'knowledge/arch.md', mode: '100644', type: 'blob', sha: '222', size: 250 },
-      { path: 'skills/deploy/SKILL.md', mode: '100644', type: 'blob', sha: '333', size: 300 },
-      { path: 'assets/diagram.png', mode: '100644', type: 'blob', sha: '444', size: 4000 },
+      { path: 'README.md', mode: '100644', type: 'blob', sha: '111', size: 100, url: '' },
+      { path: 'knowledge/arch.md', mode: '100644', type: 'blob', sha: '222', size: 250, url: '' },
+      { path: 'skills/deploy/SKILL.md', mode: '100644', type: 'blob', sha: '333', size: 300, url: '' },
+      { path: 'assets/diagram.png', mode: '100644', type: 'blob', sha: '444', size: 4000, url: '' },
     ]);
 
     vi.spyOn(githubService, 'getRawFileContent').mockImplementation(async (owner, repo, branch, path) => {
@@ -56,9 +56,11 @@ describe('UI Routes (/ui)', () => {
         return {
           status: 200,
           content: '# Architecture\nSee [Deploy Guide](../skills/deploy/SKILL.md) and [Missing](./ghost.md).',
+          sizeBytes: 80,
+          durationMs: 10,
         };
       }
-      return { status: 200, content: '# General' };
+      return { status: 200, content: '# General', sizeBytes: 10, durationMs: 5 };
     });
 
     const res = await app.request('/ui/state?repo=testowner/testrepo');

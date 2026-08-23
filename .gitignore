@@ -31,3 +31,5 @@ Thumbs.db
 .evb/cache/
 .evb/state.yaml
 .evb/auth.yaml
+
+pitch-assets/

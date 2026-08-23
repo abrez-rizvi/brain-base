@@ -13,6 +13,10 @@ app_port: 7860
 
 Ever-Brain is a portable, agent-agnostic project intelligence layer that makes repository knowledge, skills, and context discoverable, persistent, and consumable across AI agents and developers.
 
+🌐 **Deployed Landing Page**: [https://ever-brain.vercel.app/](https://ever-brain.vercel.app/)  
+🤗 **Hosted Backend (Hugging Face)**: [https://projectsorg-ever-brain.hf.space/](https://projectsorg-ever-brain.hf.space/)  
+📦 **Releases & Deployment**: [https://github.com/abrez-rizvi/ever-brain/releases](https://github.com/abrez-rizvi/ever-brain/releases)
+
 ---
 
 ## ⚡ Quick Start (Run in 60 Seconds)
@@ -31,9 +35,10 @@ pnpm install
 pnpm dev
 ```
 
-That's it! Both servers are now live:
-* 🟢 **Ever-Brain API**: `http://localhost:3000` *(Health check: `http://localhost:3000/health`)*
-* 🟣 **Ever-Brain MCP Server**: `http://localhost:3002` *(SSE endpoint: `http://localhost:3002/sse`)*
+That's it! Both servers are now live (or use the hosted backend on Hugging Face):
+* 🤗 **Hosted Backend Gateway**: `https://projectsorg-ever-brain.hf.space/` *(Health: `/health`, UI: `/ui`, SSE: `/sse`)*
+* 🟢 **Local Ever-Brain API**: `http://localhost:3000` *(Health check: `http://localhost:3000/health`)*
+* 🟣 **Local Ever-Brain MCP Server**: `http://localhost:3002` *(SSE endpoint: `http://localhost:3002/sse`)*
 
 ### 🎮 Using the CLI Immediately
 ```bash
@@ -109,7 +114,7 @@ cd C:\path\to\your-other-project
 ### 4. Initialize Ever-Brain
 Connect your project to any GitHub repository containing intelligence, runbooks, or skills:
 ```bash
-evb init https://github.com/spencerpauly/skills-repo
+evb init https://github.com/Dhruv-Pahwa/byteme_sample
 ```
 
 ### 5. What Happens Next
@@ -133,8 +138,11 @@ evb init https://github.com/spencerpauly/skills-repo
 
 ### 📋 Prerequisites & Downloads
 
-| Software | Required Version | Download / Installation | Verify Command |
+| Software / Resource | Required Version | Download / Installation / Link | Verify Command |
 | :--- | :--- | :--- | :--- |
+| **Live Landing Page** | Deployed Web App | [ever-brain.vercel.app](https://ever-brain.vercel.app/) | — |
+| **Hosted Backend Gateway** | Hugging Face Spaces | [projectsorg-ever-brain.hf.space](https://projectsorg-ever-brain.hf.space/) | — |
+| **GitHub Releases** | Latest Release & Assets | [Releases Page](https://github.com/abrez-rizvi/ever-brain/releases) | — |
 | **Node.js** | `>= 20.0.0` (LTS recommended) | [Download Node.js](https://nodejs.org/) | `node -v` |
 | **pnpm** | `>= 9.0.0` | `npm install -g pnpm`<br>*(or `corepack enable && corepack prepare pnpm@latest --activate`)* | `pnpm -v` |
 | **Git** | `>= 2.30.0` | [Download Git](https://git-scm.com/downloads) | `git --version` |
