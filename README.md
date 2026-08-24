@@ -28,8 +28,9 @@ Clone and host both the **Ever-Brain API** and **Ever-Brain MCP Server** concurr
 git clone https://github.com/abrez-rizvi/ever-brain.git
 cd ever-brain
 
-# 2. Install Dependencies
+# 2. Install Dependencies & Build Packages
 pnpm install
+pnpm build
 
 # 3. Start Local Servers (API + MCP Concurrently)
 pnpm dev
@@ -42,7 +43,7 @@ That's it! Both servers are now live (or use the hosted backend on Hugging Face)
 
 ### 🎮 Using the CLI Immediately
 ```bash
-# Run CLI directly inside the repo:
+# Run CLI directly inside the repo (ensure 'pnpm build' has been run):
 pnpm evb --help
 
 # Or link it globally to use 'evb' anywhere on your PC:
@@ -90,12 +91,13 @@ Comprehensive documentation is available in the [`docs/wiki/`](./docs/wiki/) dir
 
 You can use Ever-Brain on **any project or workspace on your computer** without modifying your project's codebase. Here is how to test it end-to-end in 5 minutes:
 
-### 1. Link the CLI globally
-From your `ever-brain` root folder, run:
+### 1. Build and Link the CLI globally
+From your `ever-brain` root folder, build all packages and link globally:
 ```bash
+pnpm build
 pnpm cli:link
 ```
-*(Runs `pnpm --dir packages/cli link --global`. If you haven't used global pnpm tools before, run `pnpm setup` once).*
+*(Runs `pnpm build` then `pnpm --dir packages/cli link --global`. If you haven't used global pnpm tools before, run `pnpm setup` once).*
 
 ### 2. Keep the local servers running
 In a terminal in `ever-brain`, start the servers:
