@@ -174,27 +174,27 @@ pnpm build
 
 ```bash
 # Connect current workspace to an Ever-Brain intelligence repository & bootstrap agent meta-skill
-evb init https://github.com/acme/project-intelligence
+evb init https://github.com/Dhruv-Pahwa/byteme_sample
 
 # Inspect connection, cached volume, and uncommitted modifications
 evb status
 
 # Inspect knowledge documents
 evb knowledge list
-evb knowledge show architecture.md
+evb knowledge show espresso-fundamentals.md
 
 # Inspect and materialize skills for local agents
 evb skills list
-evb skills show testing
-evb skills install testing --target gemini # or cursor, claude
+evb skills show french-press-brewing
+evb skills install french-press-brewing --target gemini # or cursor, claude
 
 # Open the live, reactive Ever-Brain Intelligence Visualizer in your browser
 evb ui
 
 # Check diffs with robust binary asset protection & CRLF line-ending normalization
 evb diff
-evb push -m "feat(skills): add database migration runbook" # Direct commit for maintainers
-evb propose --title "feat: Add Webhook runbook"           # Opens GitHub PR for contributors
+evb push -m "feat(skills): add aeropress brewing runbook"   # Direct commit for maintainers
+evb propose --title "feat: Add AeroPress brewing runbook" # Opens GitHub PR for contributors
 ```
 
 ---
